@@ -38,7 +38,7 @@ def importRhinoFile(fileNames, sourcePath):
     #file import
     for fn in fileNames:
         thisFilePath = os.path.join(sourcePath,fn)
-        importCommandString = "_-Import " + thisFilePath + " _Enter _Enter _Enter"
+        importCommandString = '_-Import "' + thisFilePath + '" _Enter'
         imported = rs.Command(importCommandString, echo=False)
             
         if not imported:
