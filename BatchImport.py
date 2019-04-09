@@ -18,6 +18,7 @@ import scriptcontext as sc
 import ghpythonlib.treehelpers as th
 import Rhino
 import os
+rcdoc = Rhino.RhinoDoc.ActiveDoc
 
 
 """
@@ -52,8 +53,10 @@ Grabs geometry from Rhino and constructs data tree.
 Each branch of the tree is a different layer in the document.
 """
 def rhinoGeomToDataTree():
+    sc.doc = rcdoc
     layers = rs.LayerNames(sort=False)
-#    print(layers)
+    sc.doc = ghdoc
+#    print layers
     layerTree = [[] for layer in layers]
     for i in range(len(layers)):
         objs = Rhino.RhinoDoc.ActiveDoc.Objects.FindByLayer(layers[i])

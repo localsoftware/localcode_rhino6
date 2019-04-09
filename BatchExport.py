@@ -1,7 +1,6 @@
-"""Bakes geometry into Rhino space by specified layer.
-   Exports resulting Rhino file.
+"""Provides a scripting component.
     Inputs:
-        geometry: The geometry to bake.
+        geometry: The x script variable
         exportFileName: Export file name.
         exportFilePath: Target directory.
         layerNames: List of layer names to bake geometry into. 
@@ -10,7 +9,7 @@
         Export: boolean to run component
         deleteExisting: boolean to delete geometry already in document.
     Output:
-        a: None"""
+        a: The a output variable"""
         
 __author__ = "jberry"
 __version__ = "2019.03.14"
@@ -21,7 +20,7 @@ import ghpythonlib.components as ghcomp
 import scriptcontext as sc
 import Rhino
 import os
-        
+rcdoc = Rhino.RhinoDoc.ActiveDoc
         
 """
 @param    geometry       data tree of geometry
@@ -31,20 +30,19 @@ import os
 @return   None           Adds geometry and layers to active Rhino document.
 """
 def bake(geometry, layerNames, layerColors):
-    geometryList = th.tree_to_list(geometry)
+    geometryList = [geometry.Branch(b) for b in range(geometry.BranchCount)]
 #    print geometryList
-    if len(geometryList[0]) != len(layerNames):
+    if len(geometryList) != len(layerNames):
         print "The number of layers must match the number of branches"
         return
     elif len(layerColors)!=len(layerNames) and len(layerColors)!=0 and \
          len(layerColors)!=1:
         print "The number of layer colors must match the number of layers."
     else:
-        rcdoc = Rhino.RhinoDoc.ActiveDoc
         attr =Rhino.DocObjects.ObjectAttributes()
         sc.doc = rcdoc
         
-        for i in range(len(geometryList[0])):
+        for i in range(len(geometryList)):
             currentLayer=layerNames[i]
             if layerColors==None:
                 currentColor=None
@@ -64,8 +62,9 @@ def bake(geometry, layerNames, layerColors):
             layerIndex = rs.LayerOrder(currentLayer)
             
             #get objects on this branch
-            sc.doc=ghdoc
-            for id in geometryList[0][i]:
+            
+            for id in geometryList[i]:
+                sc.doc=ghdoc
                 gh_to_rhino = rs.coercerhinoobject(id)
                 
                 #set object layer
@@ -85,10 +84,12 @@ Export geometry in file to file name
 """
 def export():
     #select objects to export
+    sc.doc=rcdoc
     rs.AllObjects(select=True)
     filepath = os.path.join(exportFilePath, exportFileName)
-    exportCommandString = "_-Export " + filepath + " _Enter _Enter _Enter"
-    exported = rs.Command(exportCommandString, echo=True)
+    exportCommandString = '_-Export "' + filepath + '" _Enter _Enter _Enter'
+    out = rs.Command(exportCommandString, echo=True)
+    sc.doc=ghdoc
     return
         
         
@@ -96,8 +97,10 @@ def export():
 deletes all existing geometry from document.
 """
 def deleteExistingGeom():
+    sc.doc = rcdoc
     allObjs = rs.AllObjects()
     rs.DeleteObjects(allObjs)
+    sc.doc = ghdoc
     return
         
 """
