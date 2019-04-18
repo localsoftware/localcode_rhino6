@@ -10,25 +10,19 @@ Inputs:
 
 Outputs:
     geometry: if successful, a data tree with serialized geometry
-    
-    
-TODO:
-Very broken.
-Geometry not preserved --> try object.Geometry
-Make siteNumber optional
 """
 import rhinoscriptsyntax as rs
 import scriptcontext as sc
 import cPickle as pickle
 import Rhino
 
-if path and data and write:
-    if siteNumber:
+if path!=None and len(data)>0 and write!=False:
+    if siteNumber!=None:
         filename = path+str(int(siteNumber))+layer
     else:
         filename = path+layer
 
-    f = open(path+layer, 'wb')
+    f = open(filename, 'wb')
     pickle.dump(data, f, -1)
         
     f.close()

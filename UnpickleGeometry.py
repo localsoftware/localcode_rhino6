@@ -13,9 +13,10 @@ Outputs:
 
 import cPickle as pickle
 
-if path and read and layer:
+if path!=None and read!=False and layer!=None:
     try:
-        if siteNumber:
+        print siteNumber
+        if siteNumber!=None:
             f = open(path+str(int(siteNumber))+layer)
         else:
             f = open(path+layer)
