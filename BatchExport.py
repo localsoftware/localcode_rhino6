@@ -1,6 +1,6 @@
-"""Provides a scripting component.
+"""Exports geometry to a new file.
     Inputs:
-        geometry: The x script variable
+        geometry: Data tree of geometry. Each branch corresponds to a layer.
         exportFileName: Export file name.
         exportFilePath: Target directory.
         layerNames: List of layer names to bake geometry into. 
@@ -9,7 +9,7 @@
         Export: boolean to run component
         deleteExisting: boolean to delete geometry already in document.
     Output:
-        a: The a output variable"""
+        None"""
         
 __author__ = "jberry"
 __version__ = "2019.03.14"
@@ -22,21 +22,14 @@ import Rhino
 import os
 rcdoc = Rhino.RhinoDoc.ActiveDoc
         
-"""
-@param    geometry       data tree of geometry
-@param    layerNames     list of laye names same length as number of branches.
-@param    layerColors    list of layer colors, must match length of layerNames.
-        
-@return   None           Adds geometry and layers to active Rhino document.
-"""
+
 def bake(geometry, layerNames, layerColors):
     geometryList = [geometry.Branch(b) for b in range(geometry.BranchCount)]
 #    print geometryList
     if len(geometryList) != len(layerNames):
         print "The number of layers must match the number of branches"
         return
-    elif len(layerColors)!=len(layerNames) and len(layerColors)!=0 and \
-         len(layerColors)!=1:
+    elif len(layerColors)!=len(layerNames) or layerColors==[]:
         print "The number of layer colors must match the number of layers."
     else:
         attr =Rhino.DocObjects.ObjectAttributes()
@@ -108,7 +101,7 @@ Meat of the component
 """
 if Export:
     if (geometry!=None) and (exportFileName!=None) and (exportFilePath!=None)\
-    and (layerNames!=None):
+    and (layerNames!=None) and (layerColors!=[]):
         if deleteExisting:
             deleteExistingGeom()
         bake(geometry, layerNames, layerColors)
@@ -121,6 +114,8 @@ if Export:
         print "Please specify a destination directory for your export."
     elif layerNames==None:
         print "Please specify target layers for each branch of your geometry."
+    elif layerColors==[]:
+        print "Please add layer colors."
         
         
         
