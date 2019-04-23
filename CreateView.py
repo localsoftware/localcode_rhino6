@@ -1,4 +1,4 @@
-"""Provides a scripting component.
+"""Creates view target and vector from seleted objects.
     Inputs:
         geometry: geometry to focus on in view
         azimuth: Camera rotation in XY. 0 to 360.
