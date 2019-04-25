@@ -1,5 +1,13 @@
 # localcode_rhino6
 
+##TODO:
+*Test Render component
+*Compile components to .dll (?) to protect IP
+*User test working components
+*Fix broken components
+*Make working but finicky components robust?
+*Finish graphic identity for icons
+
 ## Components to be Tested
 *BatchRender
 
