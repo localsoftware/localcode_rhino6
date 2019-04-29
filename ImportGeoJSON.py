@@ -93,6 +93,7 @@ addr("Grasshopper")
 from Grasshopper import DataTree
 from Grasshopper.Kernel.Data import GH_Path
 
+
 def addRhinoLayer(layerName, layerColor=System.Drawing.Color.Black):
     """Creates a Layer in Rhino using a name and optional color. Returns the
     index of the layer requested. If the layer
@@ -107,6 +108,7 @@ def addRhinoLayer(layerName, layerColor=System.Drawing.Color.Black):
             layer.Color = layerColor # reset the color
     return layerIndex
 
+
 def PointToRhinoPoint(coordinates):
     if len(coordinates) > 2:
         z = coordinates[2]
@@ -115,11 +117,13 @@ def PointToRhinoPoint(coordinates):
     x, y = coordinates[0], coordinates[1]
     return Point3d(x, y, z)
 
+
 def MultiPointToRhinoPoint(coordinates):
     rhPointList = []
     for point in coordinates:
         rhPointList.append(PointToRhinoPoint(point))
     return rhPointList
+
 
 def MeshToRhinoMesh(coordinates, faces):
     rhMesh = Mesh()
@@ -134,15 +138,18 @@ def MeshToRhinoMesh(coordinates, faces):
     rhMesh.Compact()
     return rhMesh
 
+
 def LineStringToRhinoCurve(coordinates):
     rhPoints = MultiPointToRhinoPoint(coordinates)
     return Curve.CreateControlPointCurve(rhPoints, 1)
+
 
 def MultiLineStringToRhinoCurve(coordinates):
     rhCurveList = []
     for lineString in coordinates:
         rhCurveList.append(LineStringToRhinoCurve(lineString))
     return rhCurveList
+
 
 def PolygonToRhinoCurve(coordinates):
     # each ring is a separate list of coordinates
@@ -151,17 +158,21 @@ def PolygonToRhinoCurve(coordinates):
         ringList.append(LineStringToRhinoCurve(ring))
     return ringList
 
+
 def MultiPolygonToRhinoCurve(coordinates):
     polygonList = []
     for polygon in coordinates:
         polygonList.append(PolygonToRhinoCurve(polygon))
     return polygonList
 
+
 def GeometryCollectionToParser(geometries):
     pass # I need to figure this one out still
 
+
 def addPoint(rhPoint, objAtt):
     return doc.Objects.AddPoint(rhPoint, objAtt)
+
 
 def addPoints(rhPoints, objAtt):
     guidList = []
@@ -169,8 +180,10 @@ def addPoints(rhPoints, objAtt):
         guidList.append(doc.Objects.AddPoint(rhPoint, objAtt))
     return guidList
 
+
 def addCurve(rhCurve, objAtt):
     return doc.Objects.AddCurve(rhCurve, objAtt)
+
 
 def addCurves(rhCurves, objAtt):
     guidList = []
@@ -178,11 +191,13 @@ def addCurves(rhCurves, objAtt):
         guidList.append(addCurve(curve, objAtt))
     return guidList
 
+
 def addPolygon(ringList, objAtt):
     # for now this just makes curves
     # but maybe it should make TrimmedSrfs
     # or should group the rings
     return addCurves(ringList, objAtt)
+
 
 def addPolygons(polygonList, objAtt):
     guidList = []
@@ -191,24 +206,16 @@ def addPolygons(polygonList, objAtt):
         guidList.extend(addPolygon(polygon, objAtt))
     return guidList
 
+
 def addMesh(rhMesh, objAtt):
     return doc.Objects.AddMesh(rhMesh, objAtt)
 
-geoJsonGeometryMap = {
-        'Point':(PointToRhinoPoint, addPoint),
-        'MultiPoint':(MultiPointToRhinoPoint, addPoints),
-        'LineString':(LineStringToRhinoCurve, addCurve),
-        'MultiLineString':(MultiLineStringToRhinoCurve, addCurves),
-        'Polygon':(PolygonToRhinoCurve, addPolygon),
-        'MultiPolygon':(MultiPolygonToRhinoCurve, addPolygons),
-        'Mesh':(MeshToRhinoMesh, addMesh),
-        'GeometryCollection':(GeometryCollectionToParser),
-        }
 
 def setUserKeys(properties, objAttributes):
     for key in properties:
         objAttributes.SetUserString(key, str(properties[key]))
     return objAttributes
+
 
 def jsonToRhinoCommon(jsonFeature):
         # deal with the geometry
@@ -224,6 +231,7 @@ def jsonToRhinoCommon(jsonFeature):
             rhFeature = geoJsonGeometryMap[geomType][0](coordinates)
         return rhFeature
 
+
 def addJsonFeature(jsonFeature, objAttributes):
         # deal with the properties
         if jsonFeature['properties']:
@@ -232,6 +240,7 @@ def addJsonFeature(jsonFeature, objAttributes):
         rhFeature = jsonToRhinoCommon(jsonFeature)
         # return the GUID(s) for the feature
         return geoJsonGeometryMap[geomType][1](rhFeature, objAttributes)
+
 
 def processGeoJson(parsedGeoJson,
          destinationLayer=None,
@@ -250,6 +259,7 @@ def processGeoJson(parsedGeoJson,
         guidResults.append(addJsonFeature(jsonFeature, att))
     # return all the guids
     return guidResults
+
 
 def load(rawJsonData,
          prefix=None,
@@ -284,8 +294,7 @@ def load(rawJsonData,
     else:
         return "This doesn't look like correctly formatted GeoJSON data.\nI'm not sure what to do with it, sorry."
 
-idsOut = []
-layerNamesOut = []
+
 def getAttsVals(id,path=None):
     objct = doc.Objects.Find(id)
     data = objct.Attributes.GetUserStrings()
@@ -311,77 +320,106 @@ def getAttsVals(id,path=None):
             Values.Add(d[u],path)
         return None,None
     
-def importSitefolder (filepath):
+    
+def importSitefolder(filepath):
     f = str(SiteNumber)
     prefix = str(f +"_")
+    
     try:
-        f = open (filepath+"/"+f,'r')
+        thisfilepath = os.path.join(filepath, f)
+        f = open(thisfilepath,'r')
     except:
-        f = open (filepath+"/"+f+'.txt','r')
+        f = str(SiteNumber)+".txt"
+        thisfilepath = os.path.join(filepath, f)
+        f = open(thisfilepath,'r')
     myGeoJson = f.readline()
     guidList,layersList = load(myGeoJson, prefix)
     idsOut.append(guidList)
     layerNamesOut.append(layersList)
     f.close()
 
+
+
+def constructTree():
+    ### NOTE: some problems with mutlipolygons being nested 'up' a level. This problem is rooted in 'loader'
+    ### it needs to be debugged out
+    for i in range (len(layerNamesOut[0])):
+        p = GH_Path(i)
+        LayerNames.Add(layerNamesOut[0][i]['name'],p)
+    for A in idsOut:#for each file
+        for i in range (len(A)):# for each layer
+            try:
+                p = GH_Path(i)#make a new data tree path
+                if (len(A[i])>1):# if the datatree path has more than one item
+                    for j in range (len(A[i])):# iterate
+                        try:
+                            thisId = A[i][j][0]
+                            pPrime = p.AppendElement(j)
+                            Geometry.Add(thisId,p)# add each feature to the path
+                            getAttsVals(thisId,pPrime)
+                        except:
+                            ### It must be a point (tuple), cannot subscript it, grab it directly
+                            try:
+                                thisId = A[i][j]
+                                pPrime = p.AppendElement(j)
+                                Geometry.Add(thisId,p)
+                                getAttsVals(thisId,pPrime)
+                            except:
+                                continue
+                else:#otherwise, the layer has only one item (it is either a 1 item layer or a multipolygon)
+                    #it is a single object layer
+                    try:
+                        thisId = A[i][0]
+                        pPrime = p.AppendElement(0)
+                        Geometry.Add(thisId,p)
+                        getAttsVals(thisId,pPrime)
+                    except: #multipolygon is nested one level
+                        print "Multipolygon found, some list-cleanup may be needed"
+                        thisId = A[i][0][0]
+                        pPrime = p.AppendElement(0)
+                        Geometry.Add(thisId,p)
+                        getAttsVals(thisId,pPrime)
+            except:
+                print 'There were some problems importing a layer, please try again with a different set of layers'
+                continue
+    return
+
+
+
+geoJsonGeometryMap = {
+        'Point':(PointToRhinoPoint, addPoint),
+        'MultiPoint':(MultiPointToRhinoPoint, addPoints),
+        'LineString':(LineStringToRhinoCurve, addCurve),
+        'MultiLineString':(MultiLineStringToRhinoCurve, addCurves),
+        'Polygon':(PolygonToRhinoCurve, addPolygon),
+        'MultiPolygon':(MultiPolygonToRhinoCurve, addPolygons),
+        'Mesh':(MeshToRhinoMesh, addMesh),
+        'GeometryCollection':(GeometryCollectionToParser),
+        }
+
+
+"""
+To run the code
+"""
 if Import!= None and type(Import) == bool:
     if Import == True:
         try:
+            idsOut = []
+            layerNamesOut = []
             importSitefolder(geoJSONFolderPath)
-            if guidList != None:
-                message = 'You succesfully imported a geoJSON file!' 
+            
+            if idsOut != None:
+                Geometry = DataTree[Object]()
+                Attributes = DataTree[Object]()
+                Values = DataTree[Object]()
+                LayerNames = DataTree[Object]()
+                constructTree()
+                print 'You succesfully imported a geoJSON file!' 
             else:
-                message = 'There was some problem with your geoJSON file, we imported as many layers as possible!'
+                print 'There was some problem with your geoJSON file, we imported as many layers as possible!'
                 
         except:
             pass
 else:
     print 'To Import you need to input a boolean toggle'
 
-Geometry = DataTree[Object]()
-Attributes = DataTree[Object]()
-Values = DataTree[Object]()
-LayerNames = DataTree[Object]()
-
-### NOTE: some problems with mutlipolygons being nested 'up' a level. This problem is rooted in 'loader'
-### it needs to be debugged out
-for i in range (len(layerNamesOut[0])):
-    p = GH_Path(i)
-    LayerNames.Add(layerNamesOut[0][i]['name'],p)
-    
-for A in idsOut:#for each file
-    for i in range (len(A)):# for each layer
-        try:
-            p = GH_Path(i)#make a new data tree path
-            if (len(A[i])>1):# if the datatree path has more than one item
-                for j in range (len(A[i])):# iterate
-                    try:
-                        thisId = A[i][j][0]
-                        pPrime = p.AppendElement(j)
-                        Geometry.Add(thisId,p)# add each feature to the path
-                        getAttsVals(thisId,pPrime)
-                    except:
-                        ### It must be a point (tuple), cannot subscript it, grab it directly
-                        try:
-                            thisId = A[i][j]
-                            pPrime = p.AppendElement(j)
-                            Geometry.Add(thisId,p)
-                            getAttsVals(thisId,pPrime)
-                        except:
-                            continue
-            else:#otherwise, the layer has only one item (it is either a 1 item layer or a multipolygon)
-                #it is a single object layer
-                try:
-                    thisId = A[i][0]
-                    pPrime = p.AppendElement(0)
-                    Geometry.Add(thisId,p)
-                    getAttsVals(thisId,pPrime)
-                except: #multipolygon is nested one level
-                    print "Multipolygon found, some list-cleanup may be needed"
-                    thisId = A[i][0][0]
-                    pPrime = p.AppendElement(0)
-                    Geometry.Add(thisId,p)
-                    getAttsVals(thisId,pPrime)
-        except:
-            print 'There were some problems importing a layer, please try again with a different set of layers'
-            continue
