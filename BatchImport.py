@@ -1,44 +1,45 @@
-"""Imports geometry from Rhino files into grasshopper. Preserves layer hierarchy as data tree.
+"""Imports geometry from Rhino files into grasshopper.
+   Preserves layer hierarchy as data tree.
     Inputs:
         filename: List of file(s) to import (string)
         Import: boolean to start import
         deleteExisting: boolean to delete existing geometry in file
     Output:
-        geometryOut: The imported geometry into gh space.
-		
-	WARNING:
-		Still buggy. Throw (component) has expired error for some reason.
-		Import still works, so I'm not sure why that error is happening."""
+        geometryOut: The imported geometry ingo gh space."""
+
+__author__ = "jberry"
+__version__ = "2019.05.24"
 
 from ghpythonlib.componentbase import executingcomponent as component
-import Grasshopper, GhPython, System, Rhino, os
+import Grasshopper, GhPython
+import System
+import Rhino
 import rhinoscriptsyntax as rs
 import scriptcontext as sc
 import ghpythonlib.treehelpers as th
-
+import os
 rcdoc = Rhino.RhinoDoc.ActiveDoc
 ghdoc = sc.doc
 
-__author__ = "jberry"
-__version__ = "2019.05.02"
-
 class MyComponent(component):
-    
     """
-    ERROR WHEN DELETING ALL OBJECTS!!!!!
     Deletes existing geometry from Rhino file before import.
     """
     def deleteExistingGeom(self):
-        sc.doc = rcdoc
+        sc.doc = Rhino.RhinoDoc.ActiveDoc
         objects = rs.AllObjects()
-        for obj in objects:
-            rs.DeleteObject(obj)
-        sc.doc=ghdoc
+        if objects:
+            for obj in objects:
+                rs.DeleteObject(obj)
+        layers = rs.LayerNames()
+        for layer in layers:
+            if layer!=rs.CurrentLayer():
+                rs.DeleteLayer(layer)
         return
-    
     
     """
     Imports geometry from files
+    
     """
     def importRhinoFile(self, fileNames, sourcePath):
         #file import
@@ -51,7 +52,7 @@ class MyComponent(component):
                 print "there was a problem with file: " + fn
             
         return
-    
+        
     
     """
     Grabs geometry from Rhino and constructs data tree.
@@ -61,38 +62,47 @@ class MyComponent(component):
         sc.doc = rcdoc
         layers = rs.LayerNames(sort=False)
         sc.doc = ghdoc
-        layerTree = [[] for layer in layers]
+    #    layerTree = [[] for layer in layers]
+        layerTree = []
         for i in range(len(layers)):
             objs = Rhino.RhinoDoc.ActiveDoc.Objects.FindByLayer(layers[i])
+            
             if objs:
                 geoms = [obj.Geometry for obj in objs]
-                layerTree[i].extend(geoms)
-        layerTree = th.list_to_tree(layerTree, source=[])
-        return layerTree
-    
-    """
-    To run the script and import files
-    """
-    def RunScript(self, filenames, sourceFolderPath, Import, deleteExisting):
-        self.Name = "Batch Import"
-        self.NickName = "BatchImport"
-        geometryOut = None
+    #            layerTree[i].extend(geoms)
+                layerTree.append(geoms)
+        status= str(len(layerTree))+ " branches \n"
         
+        layerTree = th.list_to_tree(layerTree, source=[])
+        
+        return layerTree, status
+    
+    def RunScript(self, filenames, sourceFolderPath, Import, deleteExisting):
+        geometryOut, status = None, None
+        
+        #Perform Import
         if Import:
             # option to delete existing geometry in document
+            status = "start import \n"
             if deleteExisting:
                 self.deleteExistingGeom()
+                status += "deleted \n"
                 
             #now import geometry from files
             if (filenames != None) and (sourceFolderPath != None):
                 #import function here
                 self.importRhinoFile(filenames, sourceFolderPath)
-                geometryOut=self.rhinoGeomToDataTree() #output geometry to gh here
+                status += "imported rhino files \n"
+#                thisDoc.ScheduleSolution(20, self.rhinoGeomToDataTree)
+                geometryAndStatus=self.rhinoGeomToDataTree()
+                geometryOut = geometryAndStatus[0]
+                status+=geometryAndStatus[1]
+                status += "geometry to datatree \n"
             else:
                 if filenames==None:
                     print "Provide a list of filenames"
                 elif sourceFolderPath==None:
                     print "Provide the path to your source folder"
-                else:
-                    print "Something went wrong... please check all input types."
-        return geometryOut
+        
+        # return outputs if you have them; here I try it for you:
+        return (geometryOut, status)

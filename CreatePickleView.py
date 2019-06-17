@@ -87,5 +87,5 @@ class MyComponent(component):
             if write!=True:
                 status = "set write to True to pickle view"
         
-        # return outputs if you have them; here I try it for you:
+        # return outputs
         return (geometry, view_vector, view_target, status)

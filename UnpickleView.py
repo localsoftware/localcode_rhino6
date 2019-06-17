@@ -18,9 +18,9 @@ import rhinoscriptsyntax as rs
 import cPickle as pickle
 
 class MyComponent(component):
+    geometry, vector, target, status  = None, None, None, None
     
     def RunScript(self, siteNumber, layer, path, read):
-        geometry, vector, target, status  = None, None, None, None
         if path!=None and read==True and layer!=None:
             try:
                 if siteNumber!=None:
@@ -41,6 +41,7 @@ class MyComponent(component):
             except:
                 status = 'Problem loading\n\n %s\n\nFile may not exist or the path may be invalid' % filepath
         else:
+            geometry, vector, target  = None, None, None
             if path==None:
                 status = "please provide path to source file directory."
             if layer==None:

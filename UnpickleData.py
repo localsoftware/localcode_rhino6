@@ -20,9 +20,8 @@ __author__ = "jberry"
 __version__ = "2019.05.02"
 
 class MyComponent(component):
-    
+    geometry=None
     def RunScript(self, siteNumber, layer, path, read):
-        print read
         if path!=None and read==True and layer!=None:
             try:
                 if siteNumber!=None:
@@ -46,6 +45,4 @@ class MyComponent(component):
                 geometry = "please provide layer name of source file."
             if read!=True:
                 geometry = "set read to True to load file contents."
-            else:
-                geometry = "Something went wrong. Check your inputs."
         return geometry

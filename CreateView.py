@@ -23,6 +23,7 @@ __version__ = "2019.04.10"
 
 
 class MyComponent(component):
+    view_geom, view_target, view_vector = None, None, None
     
     def RunScript(self, geometry, azimuth, altitude):
         view_geom, view_target, view_vector = None, None, None
