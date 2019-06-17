@@ -19,47 +19,45 @@
 * DeleteAll
 
 ## Working Components with source code
-* **BatchImport**
+* **BatchImport**  
    Compiled a working GHPY component. Source code and UserObject are updated.  
    In the past, there were errors saying an object had expired while running the component.  
 
-* **BatchExport**
+* **BatchExport**  
    Compiled a working GHPY component. Source code and UserObject are updated.  
-   Source code needs some work. The functions should not be nested within the RunScript  
-   function. But I found that the component broke when I unnested them. I was not able to  
-   figure out why. 
+   Source code needs some work. The functions should not be nested within the RunScript function. But I found that the component broke when I unnested them. I was not able to figure out why. 
 
-* **PickleData**
+* **PickleData**  
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* **UnpickleData**
+* **UnpickleData**  
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* **CreateView**
+* **CreateView**  
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* **SetView**
+* **SetView**  
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* **CreatePickleView**
+* **CreatePickleView**  
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* **UnpickleView**
+* **UnpickleView**  
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* *ImportGeoJSON* -- NOT PERFECT, but will import.
+* **ImportGeoJSON** -- NOT PERFECT, but will import.
 
-* *ReadShapefile*
+* **ReadShapefile**
 
-* *SHPExtractUserStrings*
+* **SHPExtractUserStrings**
 
-* CompareGISAttributes
+* **CompareGISAttributes**
 
 ## Working Components without source code
 * LayerFromDataTree
