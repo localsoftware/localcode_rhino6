@@ -5,9 +5,6 @@
         moveToCenter: boolean to center imported geometry at origin
     Output:
         geometry: imported geometry from shapefile
-    TODO:
-        Unnest functions and classes from RunScript function.
-        But it's working for now.
 """
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino, os, sys, System.Text
@@ -589,8 +586,6 @@ class MyComponent(component):
                 geometry = out
             else:
                 print 'no shapefile supplied'
-        
-        
         
         # return outputs if you have them; here I try it for you:
         return geometry

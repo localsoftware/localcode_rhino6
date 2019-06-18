@@ -2,9 +2,7 @@
 
 ## TODO:
 * Test BatchRender
-* Compile components to .dll (?) to protect IP 
 * User test working components
-* Fix broken components
 * Make Installer Package [(Yak)](https://developer.rhino3d.com/guides/yak/what-is-yak/)
 
 ## Broken Components
@@ -14,7 +12,7 @@
 
 ## Components to be Deleted
 * LocalCodeImport (Must be deleted from GUI)
-* LocalCodeExport
+* LocalCodeExport (Must be deleted from GUI)
 * UsrTxt
 * DeleteAll
 
@@ -51,14 +49,22 @@
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
 
-* **ImportGeoJSON** -- NOT PERFECT, but will import.
+* **ImportGeoJSON**  
+   Compiled working GHPY component. Source code and UserObject are updated.  
+   No errors in my tests. Functions should be unnested from RunScript function, but are otherwise working.  
+   
+* **ReadShapefile**  
+   Compiled working GHPY component. Source code and UserObject are updated.  
+   No errors in my tests. Functions should be unnested from RunScript function, but are otherwise working.
 
-* **ReadShapefile**
+* **SHPExtractUserStrings**  
+   Compiled working GHPY component. Source code and UserObject are updated.  
+   No errors in my tests. 
 
-* **SHPExtractUserStrings**
-
-* **CompareGISAttributes**
-
+* **CompareGISAttributes**  
+   Compiled working GHPY component. Source code and UserObject are updated.  
+   No errors in my tests.  
+   
 ## Working Components without source code
 * LayerFromDataTree
 * DocLyrs
