@@ -3,6 +3,7 @@
 ## TODO:
 * Test BatchRender
 * User test working components
+* Fix broken components
 * Make Installer Package [(Yak)](https://developer.rhino3d.com/guides/yak/what-is-yak/)
 
 ## Broken Components
