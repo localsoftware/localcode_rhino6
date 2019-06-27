@@ -2,13 +2,19 @@
 write shapefile.py
 Provides read and write support for ESRI Shapefiles.
 based on the work of jlawhead<at>geospatialpython.com
+	Inputs:
+		geometry: List of geometry objects to save in shapefile.
+		fields: List of attribute names for all geometry objects.
+		values: Tree with attribute values for all geometry objects.
+		path: Path to destination file.
+		filename: destination file name.
+		activate: Boolean to write shapefile.
+		projection: map projection to create PRJ file (required for readShapefile)
+	Outputs:
 """
 
 from struct import pack, unpack, calcsize, error
-import os
-import sys
-import time
-import array
+import os, sys, time, array
 #
 # Constants for shape types
 NULL = 0
@@ -536,53 +542,53 @@ import rhinoscriptsyntax as rs
 #import shapefile
 
 def Main():
-    file = path + '/'+ filename
-    if activate == True:
-        if type(geometry[0]) == Rhino.Geometry.Point: # If it is a point collection
-            w = Writer(POINT)
-            for field in fields: # Write the fields in the dbf
-                w.field(field)
-            for i, pt in enumerate(geometry):
-                vals = get_fields(i, fields, values, geometry)
-                point = rs.PointCoordinates(pt) # Turn the points into Rhino pt objects
-                w.point(point.X, point.Y, point.Z) # Write the pts as shp geometry objects
-                w.record(*vals) # Write the values for each pt
-            w.save(file)
-        
-        else:
-            if geometry[0].IsClosed == False: # If the geometry is a curve, write a line shp
-                w = Writer(POLYLINE)
+    if path!=None and filename!=None:
+        file = os.path.join(path, filename)
+        if activate == True:
+            if type(geometry[0]) == Rhino.Geometry.Point: # If it is a point collection
+                w = Writer(POINT)
                 for field in fields: # Write the fields in the dbf
                     w.field(field)
-                for i, crv in enumerate(geometry):
-                    cp = rs.CurvePoints(crv) # get the cps of the curves
-                    if len(cp) >1: # Make sure it's a line
-                        vals = get_fields(i, fields, values, geometry)
-                        points = [[[pt.X,pt.Y,pt.Z] for pt in cp]] # create a formated nested list from the cps to write the shp
-                        w.poly(parts=points) # Write the polylines as shp geometry objects
-                        w.record(*vals) # Write the values for each pt
+                for i, pt in enumerate(geometry):
+                    vals = get_fields(i, fields, values, geometry)
+                    point = rs.PointCoordinates(pt) # Turn the points into Rhino pt objects
+                    w.point(point.X, point.Y, point.Z) # Write the pts as shp geometry objects
+                    w.record(*vals) # Write the values for each pt
                 w.save(file)
-                
-            else: # It is a polygon
-                w = Writer(POLYGON)
-                for field in fields: # Write the fields in the dbf
-                    w.field(field)
-                for i, crv in enumerate(geometry):
-                    cp = rs.CurvePoints(crv) # get the cps of the curves
-                    if len(cp) >1: # Make sure it's a line
-                        vals = get_fields(i, fields, values, geometry)
-                        points = [[[pt.X,pt.Y,pt.Z] for pt in cp]] # create a formated nested list from the cps to write the shp
-                        w.poly(parts=points) # Write the polylines as shp geometry objects
-                        w.record(*vals) # Write the values for each pt
-                w.save(file)
-    if projection:
-        prj(file, projection)
+            
+            else:
+                if geometry[0].IsClosed == False: # If the geometry is a curve, write a line shp
+                    w = Writer(POLYLINE)
+                    for field in fields: # Write the fields in the dbf
+                        w.field(field)
+                    for i, crv in enumerate(geometry):
+                        cp = rs.CurvePoints(crv) # get the cps of the curves
+                        if len(cp) >1: # Make sure it's a line
+                            vals = get_fields(i, fields, values, geometry)
+                            points = [[[pt.X,pt.Y,pt.Z] for pt in cp]] # create a formated nested list from the cps to write the shp
+                            w.poly(parts=points) # Write the polylines as shp geometry objects
+                            w.record(*vals) # Write the values for each pt
+                    w.save(file)
+                    
+                else: # It is a polygon
+                    w = Writer(POLYGON)
+                    for field in fields: # Write the fields in the dbf
+                        w.field(field)
+                    for i, crv in enumerate(geometry):
+                        cp = rs.CurvePoints(crv) # get the cps of the curves
+                        if len(cp) >1: # Make sure it's a line
+                            vals = get_fields(i, fields, values, geometry)
+                            points = [[[pt.X,pt.Y,pt.Z] for pt in cp]] # create a formated nested list from the cps to write the shp
+                            w.poly(parts=points) # Write the polylines as shp geometry objects
+                            w.record(*vals) # Write the values for each pt
+                    w.save(file)
+        if projection:
+            prj(file, projection)
 
 def get_fields(i, fields, values, geometry):
     vals = [] # Create a list to store values for each geom
-    #while len(geometry)> len(values): # Trying to force the component to write fields...
     for h in range(len(fields)):
-        vals.append(values[values.Path(h),i]) # I iterate through the data tree and build individual lists
+        vals.append(values[values.Path(i),h]) # I iterate through the data tree and build individual lists
     return vals
 
 def prj(file, epsg):

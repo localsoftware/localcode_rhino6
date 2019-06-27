@@ -7,9 +7,10 @@
 * Make Installer Package [(Yak)](https://developer.rhino3d.com/guides/yak/what-is-yak/)
 
 ## Broken Components
-* Select a Layer from geoJSON
-* Bake With Attributes
-* Write SHP
+
+
+* **Bake With Attributes**
+  Likely used with BatchRender. Antiquated components. Large portion of code written in C#.
 
 ## Components to be Deleted
 * LocalCodeImport (Must be deleted from GUI)
@@ -66,10 +67,19 @@
    Compiled working GHPY component. Source code and UserObject are updated.  
    No errors in my tests.  
    
+* **Write SHP**
+   Working user objected. Source code NOT updated or compiled to GHPY component.
+   No errors yet.
+   
 ## Working Components without source code
-* LayerFromDataTree
-* DocLyrs
-* SpatialJoin
+* **LayerFromDataTree**
+
+* **DocLyrs**
+
+* **SpatialJoin**
+
+* **Select a Layer from geoJSON**
+  Fixed path mapping for splitting trees in geoJSON. Working with my tests (Berry 6/27/2019)
 
 
 
