@@ -61,8 +61,8 @@
    No errors in my tests.  
    
 * **Write SHP**  
-   Working user objected. Source code NOT updated or compiled to GHPY component.
-   No errors yet.
+   Compiled working GHPY component. Source code and UserObject are updated.  
+   No errors in my tests.  
    
 * **Bake With Attributes**  
    Working with preliminary tests. Likely used with BatchRender.  
