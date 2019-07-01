@@ -1,0 +1,11 @@
+name: localcode
+version: 0.0.1
+authors:
+  - Nicholas deMonchaux
+  - Contributor
+  - Contributor
+  - Jaclyn Berry
+description: >
+  LocalCode is a library for handling GIS data, shapefiles and geoJSON.
+  LocalCode is written mostly in Python, with the occasional C# component.
+url: "http://localco.de"
