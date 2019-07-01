@@ -17,12 +17,13 @@ from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino
 import rhinoscriptsyntax as rs
 from struct import pack, unpack, calcsize, error
-import os, sys, time, array
+import os, time, array
 
 
 class MyComponent(component):
     
     def RunScript(self, geometry, fields, values, path, filename, activate, projection):
+        import sys
         # Constants for shape types
         NULL = 0
         POINT = 1
@@ -544,10 +545,6 @@ class MyComponent(component):
                     self.saveDbf(target)
                     self.dbf.close()
         
-        import Rhino
-        import rhinoscriptsyntax as rs
-        #import shapefile
-        
         def Main():
             if path!=None and filename!=None:
                 file = os.path.join(path, filename)
@@ -604,8 +601,10 @@ class MyComponent(component):
             prj.write(epsg)
             prj.close()
         
-        if __name__ == "__main__":
-            Main()
+#        if __name__ == "__main__":
+#            Main()
+        
+        Main()
         
         # return outputs if you have them; here I try it for you:
         return 
