@@ -1,4 +1,4 @@
-List of working components:
+List of working components checked by 06.09.2020:
 * 1- BatchExport: compiled and locked
 * 2- BatchImport: compiled and locked
 * 3- CompareGISAttributes: compiled and locked
@@ -11,3 +11,5 @@ List of working components:
 * 10- SetView: compiled and locked
 * 11- UnPickleData: compiled and locked
 * 12- WriteSHP: compiled and locked
+
+Next step: to understand the workflow. 
