@@ -6,4 +6,8 @@ List of working components:
 * 5- Create view: compiled and locked
 * 6- Import GeoJSON: compiled and locked 
 * 7- PickleData: compiled and locked
-* 8- ReadShapeFile: 
+* 8- ReadShapeFile: compiled and locked
+* 9- SHPExtractUserString: compiled and locked
+* 10- SetView: compiled and locked
+* 11- UnPickleData: compiled and locked
+* 12- WriteSHP: compiled and locked
