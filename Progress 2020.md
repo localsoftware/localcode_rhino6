@@ -12,4 +12,6 @@ List of working components checked by 06.09.2020:
 * 11- UnPickleData: compiled and locked
 * 12- WriteSHP: compiled and locked
 
-Next step: to understand the workflow. 
+Next step: 
+- Need to check "Bake With Attributes", "UnpickleView". 
+- To understand the workflow. 
