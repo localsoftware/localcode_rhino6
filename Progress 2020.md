@@ -15,3 +15,7 @@ List of working components checked by 06.09.2020:
 Next step: 
 - Need to check "Bake With Attributes", "UnpickleView", BatchRender", "DeleteAll". 
 - To understand the workflow. 
+
+Re-write "Bake with Attributes" in python
+create new component delete all
+
