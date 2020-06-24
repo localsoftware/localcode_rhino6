@@ -1,4 +1,4 @@
-"""Provides a scripting component.
+"""Generates geometry from GH to Rhino with attributes.
     Inputs:
         G: Geometry to bake
         L: Layer name for bake
