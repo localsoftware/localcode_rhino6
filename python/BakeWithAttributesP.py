@@ -9,10 +9,17 @@
 __author__ = "palomagr"
 __version__ = "2020.06.24"
 
+from ghpythonlib.componentbase import executingcomponent as component
+import Grasshopper, GhPython
+import System, Rhino, os
 import rhinoscriptsyntax as rs
-import scriptcontext
-import Rhino
+import ghpythonlib.treehelpers as th
+import ghpythonlib.components as ghcomp
+import scriptcontext as sc
+rcdoc = Rhino.RhinoDoc.ActiveDoc
+ghdoc = sc.doc
 
+class MyComponent(component):
 
 if B:
     
@@ -43,3 +50,4 @@ if B:
     #we put back the original Grasshopper document as default
     scriptcontext.doc = ghdoc
     a = G
+return:
