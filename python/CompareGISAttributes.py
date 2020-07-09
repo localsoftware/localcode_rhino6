@@ -12,6 +12,13 @@ from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino
 import rhinoscriptsyntax as rs
 
+__author__ = "jberry"
+__version__ = "2019.03.11"
+"Packaged by Paloma GR 2020.09.07"
+
+#ghenv.Component.Name = "Compare GIS Attributes"
+#ghenv.Component.NickName = "Compare GIS Attributes"
+
 class MyComponent(component):
     
     def RunScript(self, AttributeList, AttributeName, AttributeIndex):
