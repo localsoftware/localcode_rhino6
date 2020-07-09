@@ -1,81 +1,22 @@
-"""
-Allows for the translation of GeoJSON data to Rhino objects
+"""Imports geometry from GeoJSON files into grasshopper.
+   Preserves layer hierarchy as data tree.
+    Inputs:
+        Import: boolean to start import
+        geoJSONFolderPath: path to folder with GeoJSON files
+        siteNumber: int site number
+    Output:
+        Geometry: The imported geometry ingo gh space
+        Attributes: attributes of objects / layers
+        Values: evaluated values
+        LayerNames: list of layer names
+        """
 
-GeoJSON _does_ support 3d, so this can take 3d coordinates for 3d GeoJSONs
+__author__ = "jberry"
+__version__ = "2019.03.11"
+"packaged by Paloma GR 2020.09.07"
 
-The GeoJSON Format Specification can be found here:
-    http://geojson.org/geojson-spec.html
-
-The RhinoCommon SDK (where all the Rhino.Geometry objects are documented) is
-here:
-    http://www.rhino3d.com/5/rhinocommon/
-
-I have decided to extend the GeoJSON specification by adding support for one
-more type of geometry that would be really useful in Rhino (and elsewhere),
-the Mesh. Here is an example of a json Mesh:
-
-    {"type": "Feature",
-     "geometry": {
-                  "type": "Mesh",
-                  "coordinates": [
-                                  [3.43, 54.234, 2343.23],
-                                  [...],
-                                  [...],
-                                  ...,
-                                  ]
-                  "faces": [
-                            [0,3,2],
-                            [5,32,1],
-                            ...,
-                            ]
-                  }
-      "properties": {"prop0": "value0"}
-      }
-
-
-Example of Use:
-    >>> import GeoJson2Rhino as geoj
-    >>> myGeoJson = '''
-{ "type": "FeatureCollection",
-  "features": [
-    { "type": "Feature",
-      "geometry": {"type": "Point", "coordinates": [102.0, 0.5]},
-      "properties": {"prop0": "value0"}
-      },
-    { "type": "Feature",
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]
-          ]
-        },
-      "properties": {
-        "prop0": "value0",
-        "prop1": 0.0
-        }
-      },
-    { "type": "Feature",
-       "geometry": {
-         "type": "Polygon",
-         "coordinates": [
-           [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0],
-             [100.0, 1.0], [100.0, 0.0] ]
-           ]
-       },
-       "properties": {
-         "prop0": "value0",
-         "prop1": {"this": "that"}
-         }
-       }
-     ]
-   }'''
-   >>> guidList = geoj.load(myGeoJson) #stores guids of new rhino objects
-   
-TODO: 
-Unnest functions from RunScript function.
-But works for now.
-
-"""
+#ghenv.Component.Name = "Import GeoJason"
+#ghenv.Component.NickName = "Import GeoJSON"
 
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino, json
