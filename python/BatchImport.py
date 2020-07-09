@@ -8,7 +8,11 @@
         geometryOut: The imported geometry ingo gh space."""
 
 __author__ = "jberry"
-__version__ = "2019.05.24"
+__version__ = "2019.03.11"
+"Packaged by Paloma GR 2020.09.07"
+
+#ghenv.Component.Name = "Batch Import"
+#ghenv.Component.NickName = "BatchImport"
 
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython
