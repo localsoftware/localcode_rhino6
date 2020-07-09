@@ -1,45 +1,94 @@
-import Rhino
+"""Provides a scripting component.
+    Inputs:
+        geometry: geometry as a tree
+        layers: layer names as a list
+        colors: colors swatches as a list
+        widths: widths floats as a list
+        materials: materials as LC materials as a list
+        delete: boolean to delete 'EVERY' previous instance of the geometry
+        group: boolean to group all objects
+        Bake: instanciates geometry with attributes inside Rhino
+    Output:
+        result: the geometry"""
 
-"""
-Execute a single command from the Rhino command line.
-"""
-def rcmd(commandstring, echo=True, mask=True):
-    if mask:
-        premask = '-_%s '
-        try:
-            cmd = premask % commandstring
-        except:
-            print commandstring, 'failed to mask'
-    else:
-        cmd = commandstring
-    result = Rhino.RhinoApp.RunScript(cmd, echo)
-    if not result:
-        print 'The following command failed:'
-        print ' ',cmd
-    return result
+__author__ = "palomagr"
+__version__ = "2020.07.09"
 
-"""
-Execute multiple commands in Rhino command line.
-"""
-def rcmds(commands, echo=True, mask=True):
-    for cmd in commands:
-        rcmd( cmd, echo, mask )
+from ghpythonlib.componentbase import executingcomponent as component
+import Grasshopper, GhPython
+import System, Rhino, os
+import rhinoscriptsyntax as rs
+import ghpythonlib.treehelpers as th
+import ghpythonlib.components as ghcomp
+import scriptcontext as sc
 
 
-if Bake:
-    delete = False
+class MyComponent(component):
     
-    if Delete:
-        rcmds(['SelAll', 'Delete'])
-        delete=True
-    
-    if delete:
-        bake = True
-        geom = geometry
+    def RunScript(self, geometry, layers, colors, widths, materials, delete, group, Bake):
+        result = geometry
+        geometryBranchesNum = geometry.BranchCount
         
-    else:
-        bake = True
-        geom = geometry
+        geometryList = [geometry.Branch(b) for b in range(geometry.BranchCount)]
 
-else:
-    bake = False
+        if len(layers) != geometryBranchesNum or len(colors) != geometryBranchesNum or len(materials) != geometryBranchesNum or len(widths) != geometryBranchesNum:
+            print"Add same number of geometry branches and lists of attributes"
+            
+        
+        def deleteExistingGeom():
+            sc.doc = rcdoc
+            allObjs = rs.AllObjects()
+            rs.DeleteObjects(allObjs)
+            sc.doc = ghdoc
+            return
+            
+            
+        rcdoc = Rhino.RhinoDoc.ActiveDoc
+        ghdoc = sc.doc
+        groupName = '' #empty string for group name
+        
+        if Bake:
+            
+            if delete:
+                    deleteExistingGeom()
+            #we obtain the reference in the Rhino doc
+            for i in range(len(geometryList)):
+                currentLayer = layers[i]
+                currentColor = colors[i]
+
+                currentMaterial = materials[i]
+                
+                if widths != []:
+                    currentWidth = widths[i]
+                else: currentWidth = 1.0
+                
+
+                
+                for id in geometryList[i]:
+                    sc.doc = ghdoc
+                    gh_to_rhino = rs.coercerhinoobject(id)                
+                    attributes = gh_to_rhino.Attributes
+                    geometryObj = gh_to_rhino.Geometry
+                    #we change the scriptcontext
+                    sc.doc = Rhino.RhinoDoc.ActiveDoc            
+                    #we add both the geometry and the attributes to the Rhino doc
+                    rhino_brep = sc.doc.Objects.Add(geometryObj, attributes)
+                    
+                    if(group):
+                        name = rs.AddGroup('bake_group')
+                        rs.AddObjectToGroup(rhino_brep, 'bake_group')
+                    
+                    if not rs.IsLayer(currentLayer) and currentColor != None:
+                            rs.AddLayer(name=currentLayer, color = currentColor)
+                    index = rs.LayerOrder(currentLayer)
+
+                    sc.doc.RenderMaterials.Add(currentMaterial)                    
+                    sc.doc.Layers[index].RenderMaterial = currentMaterial
+                    
+                    rs.LayerPrintWidth(currentLayer, float(currentWidth))     
+                    rs.ObjectLayer(rhino_brep, currentLayer) # add objects to rhino layer                    
+                    sc.doc = ghdoc #we put back the original Grasshopper document as default
+                    
+
+        # return outputs if you have them; here I try it for you:
+        return result
