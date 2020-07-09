@@ -6,7 +6,7 @@ Inputs:
     siteNumber: local code site number (sort of optional)
     path: path of directory for target binary file.
     layer: name of file
-    write: boolean
+    Write: boolean
 
 Outputs:
     geometry: if successful, a data tree with serialized geometry
@@ -20,6 +20,7 @@ import cPickle as pickle
 
 __author__ = "jberry"
 __version__ = "2019.05.02"
+"Packaged by Paloma GR 2020.07.09"
 
 class MyComponent(component):
     
