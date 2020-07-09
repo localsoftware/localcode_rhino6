@@ -4,7 +4,6 @@
         azimuth: Camera rotation in XY. 0 to 360.
         altitiude: Camera z-position. -90 to 90.
     Output:
-        
         view_geom: geometry in view
         view_target: 3D point for camera target.
         view_vector: 3D vector defining camera direction.
@@ -20,6 +19,7 @@ ghdoc = sc.doc
 
 __author__ = "jberry"
 __version__ = "2019.04.10"
+"Packaged by Paloma GR 2020.07.09"
 
 
 class MyComponent(component):
