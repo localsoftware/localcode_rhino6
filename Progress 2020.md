@@ -13,9 +13,9 @@ List of working components checked by 06.09.2020:
 * 12- WriteSHP: compiled and locked
 
 Next step: 
-- Need to check "Bake With Attributes", "UnpickleView", BatchRender", "DeleteAll". 
+- Need to check "Bake With Attributes", "UnpickleView", BatchRender", "DeleteAll", "Spatial Join". 
 - To understand the workflow. 
 
-Re-write "Bake with Attributes" in python
-create new component delete all
+- Re-write "Bake with Attributes" in python
+- Create new component "delete all"
 
