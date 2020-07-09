@@ -1,18 +1,20 @@
-"""Provides a scripting component.
+"""Bakes geometry with attributes.
     Inputs:
-        geometry: geometry as a tree
-        layers: layer names as a list
-        colors: colors swatches as a list
-        widths: widths floats as a list
-        materials: materials as LC materials as a list
-        delete: boolean to delete 'EVERY' previous instance of the geometry
-        group: boolean to group all objects
-        Bake: instanciates geometry with attributes inside Rhino
-    Output:
-        result: the geometry"""
+        geometry: Geometry as a tree
+        layers: Layer names as a list
+        colors: Colors swatches as a list
+        widths: List of floats
+        materials: List of LC Materials 
+        delete: Boolean to delete 'EVERY' previous instance of the geometry
+        group: Boolean to group all objects
+        Bake: Instanciates geometry with attributes to Rhino
+"""
 
 __author__ = "palomagr"
 __version__ = "2020.07.09"
+
+#ghenv.Component.Name = "Bake with Attributes"
+#ghenv.Component.NickName = "Bake with Attributes"
 
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython
@@ -26,7 +28,6 @@ import scriptcontext as sc
 class MyComponent(component):
     
     def RunScript(self, geometry, layers, colors, widths, materials, delete, group, Bake):
-        result = geometry
         geometryBranchesNum = geometry.BranchCount
         
         geometryList = [geometry.Branch(b) for b in range(geometry.BranchCount)]
@@ -91,4 +92,4 @@ class MyComponent(component):
                     
 
         # return outputs if you have them; here I try it for you:
-        return result
+        return 
