@@ -13,7 +13,7 @@
 
 __author__ = "jberry"
 __version__ = "2019.03.11"
-"packaged by Paloma GR 2020.09.07"
+"Packaged by Paloma GR 2020.09.07"
 
 #ghenv.Component.Name = "Import GeoJason"
 #ghenv.Component.NickName = "Import GeoJSON"
