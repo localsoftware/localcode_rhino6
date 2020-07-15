@@ -19,3 +19,9 @@ Next step:
 - Re-write "Bake with Attributes" in python
 - Create new component "delete all"
 
+# 07/15/2020
+- Make new component that exports to Ilustrator
+- Check documentation
+- Wrote to MCNeel
+
+
