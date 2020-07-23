@@ -1,6 +1,10 @@
 """Exports geometry to a new file or multiple files.
 
 This component exports the branches of a geoemtry tree to files. Output files number is equal to the number of file names you input to the component. The output files can be .3dm as Rhino files, or .AI to obtain Adobe Illustrator files.  
+    
+    Typical usage example:
+        Input in geometry a component with three branches of objects, a list of file names, the export file path, and a boolean to activate the export. Layer names, colors, and delete existing are optional. When 'Export' is activated, files will be created. 
+       
     Inputs:
         geometry: Data tree of geometry. Each branch corresponds to a layer.
         exportFileName: Export file name.
