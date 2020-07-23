@@ -1,4 +1,5 @@
 """Exports geometry to a new file.
+    This component exports the branches of a geoemtry tree to files. Output files number is equal to the number of file names you input to the component. 
     Inputs:
         geometry: Data tree of geometry. Each branch corresponds to a layer.
         exportFileName: Export file name.
