@@ -1,4 +1,8 @@
 """Bakes geometry with attributes.
+
+This component bakes the geometry of a file into Rhino geometry with the attributes that you assign to them. 
+
+
     Inputs:
         geometry: Geometry as a tree
         layers: Layer names as a list
