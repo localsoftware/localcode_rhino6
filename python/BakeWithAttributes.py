@@ -2,6 +2,7 @@
 
 This component bakes the geometry of a file into Rhino geometry with the attributes that you assign to them. 
 
+    Typical usage example: you design a series of geometries with the LocalCode components and bake them into Rhino as objects with attributes. 'Bake' is the boolean that activates the component to bake.
 
     Inputs:
         geometry: Geometry as a tree
@@ -12,6 +13,10 @@ This component bakes the geometry of a file into Rhino geometry with the attribu
         delete: Boolean to delete 'EVERY' previous instance of the geometry
         group: Boolean to group all objects
         Bake: Instanciates geometry with attributes to Rhino
+        
+   Outputs:
+        Baked series of geometries with attributes in Rhino. 
+  
 """
 
 __author__ = "palomagr"
