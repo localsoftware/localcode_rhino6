@@ -41,9 +41,10 @@ To compile the plug-in:
 * Open a "Rhino Python Editor" window with the command 'EditPythonScript'
 * Create a Python file called 'main.py' in the folder that contains all of your Python files
 * This is the content of main:
-import clr
 
 ```
+import clr
+
 clr.CompileModules("LocalCode.ghpy",
                    "Bake_with_Attributes.py",
                    "Batch_Export.py",
