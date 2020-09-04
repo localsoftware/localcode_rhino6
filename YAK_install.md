@@ -1,4 +1,4 @@
-# Yak Installing Process
+# Yak Installation Process
 
 
 How to create the LocalCode plugin 
@@ -40,7 +40,8 @@ To compile the plug-in:
 * Once you have all the Python files of the components
 * Open a "Rhino Python Editor" window with the command 'EditPythonScript'
 * Create a Python file called 'main.py' in the folder that contains all of your Python files
-* This is the content of main:
+* This is the content of main, a first line with the name of the .gha file, 
+Then a list of all the Python files for the components.
 
 ```
 import clr
@@ -64,5 +65,5 @@ clr.CompileModules("LocalCode.ghpy",
                    "Set_View.py"
                    )```
         
-
+* Run the code with the play button and you should get the .gha file.
 
