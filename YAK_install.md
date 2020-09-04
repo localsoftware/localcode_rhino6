@@ -23,13 +23,13 @@ https://developer.rhino3d.com/guides/yak/
 ------------------
 
 # Steps to compile the LocalCode plugin:
-1. Compile the .gha file. 
+1. Compile the .ghpy file. 
 2. Create the Yak file. 
 3. Push to Yak server. 
 
 ------------------
 
-## 1. Compile the .gha file:
+## 1. Compile the .ghpy file:
 To compile the plug-in:
 * Write the python code in a GH Python component
 * Go to 'Mode' tab and press 'Copy Compilable Code'
@@ -40,7 +40,7 @@ To compile the plug-in:
 * Once you have all the Python files of the components
 * Open a "Rhino Python Editor" window with the command 'EditPythonScript'
 * Create a Python file called 'main.py' in the folder that contains all of your Python files
-* This is the content of main, a first line with the name of the .gha file, 
+* This is the content of main, a first line with the name of the .ghpy file, 
 Then a list of all the Python files for the components.
 
 ```
@@ -66,5 +66,5 @@ clr.CompileModules("LocalCode.ghpy",
                    )
 ```
         
-* Run the code with the play button and you should get the .gha file.
+* Run the code with the play button and you should get the .ghpy file.
 
