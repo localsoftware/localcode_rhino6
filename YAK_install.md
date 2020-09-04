@@ -43,7 +43,8 @@ To compile the plug-in:
 * This is the content of main:
 import clr
 
-<clr.CompileModules("LocalCode.ghpy",
+'''
+clr.CompileModules("LocalCode.ghpy",
                    "Bake_with_Attributes.py",
                    "Batch_Export.py",
                    "Batch_Import.py",
@@ -60,6 +61,7 @@ import clr
                    "UnPickle_View.py",
                    "Write_SHP.py",
                    "Set_View.py"
-                   )>
+                   )'''
+        
 
 
