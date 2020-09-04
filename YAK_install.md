@@ -1,4 +1,4 @@
-## Yak Installing Process
+# Yak Installing Process
 
 
 How to create the LocalCode plugin 
@@ -22,16 +22,16 @@ https://developer.rhino3d.com/guides/yak/
 
 ------------------
 
-Steps to compile the LocalCode plugin:
+# Steps to compile the LocalCode plugin:
 1. Compile the .gha file. 
 2. Create the Yak file. 
 3. Push to Yak server. 
 
 ------------------
 
-# 1. Compile the.gha
+## 1. Compile the .gha file:
 To compile the plug-in:
 Write the python code in a GH Python component
-Go to 'tools'
+Go to 'Mode' tab and press 'Copy Compilable Code' 
 
 
