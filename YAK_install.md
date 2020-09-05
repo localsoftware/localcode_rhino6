@@ -70,4 +70,11 @@ clr.CompileModules("LocalCode.ghpy",
 
 # 2. Create the YAK file
 
-* Create a folder with the following files:
+* Create a folder with the following files:C:\Users\Bozo\dist
+```
+├── Marmoset.gha
+├── Marmoset.dll
+└── misc\
+    ├── README.md
+    └── LICENSE.txt
+```
