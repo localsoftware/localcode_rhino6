@@ -68,3 +68,6 @@ clr.CompileModules("LocalCode.ghpy",
         
 * Run the code with the play button and you should get the .ghpy file.
 
+# 2. Create the YAK file
+
+* Create a folder with the following files:
