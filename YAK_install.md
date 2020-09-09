@@ -80,6 +80,20 @@ clr.CompileModules("LocalCode.ghpy",
     └── LICENSE.txt
 ```
 * Create a manifest.yml in the same folder. The tricky part is to get an ID for the plugin that goes in the manifest.yml. I already did it:
+```
+name: LocalCode
+version: 1.0.3
+authors:
+- Nicholas deMonchaux
+- Carlos Sandoval
+- Paloma Gonzalez
+- Jaclyn Berry
+description: >
+  LocalCode is a library for handling GIS data, shapefiles and geoJSON.
+url: http://localco.de
+secret:
+  id: 15e57d3c-02cd-e740-15e8-551614f9a18e
+  ```
 * Create the .yak file with:
 ```
 "C:\Program Files\Rhino 6\System\Yak.exe" build
