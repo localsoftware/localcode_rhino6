@@ -1,21 +1,32 @@
-"""Exports geometry to a new file or multiple files.
+"""Exports geometry to a new file or to multiple new files.
 
-This component exports the branches of a geoemtry tree to files. Output files number is equal to the number of file names you input to the component. The output files can be .3dm as Rhino files, or .AI to obtain Adobe Illustrator files.  
-    
+This component exports GH geometry structured as a tree into files.
+The output file number is the same as the number of input file names.
+The output file extensions can be .3DM, .DWG, .SVG, or .AI.
+Based on the work of Jackie Berry.
+
     Typical usage example:
-        Input in geometry a component with three branches of objects, a list of file names, the export file path, and a boolean to activate the export. Layer names, colors, and delete existing are optional. When 'Export' is activated, files will be created. 
-       
+        Input geometry as branches, a list of file names, an export file path, and a boolean to activate the component.
+        The Layer names list, colors list, and 'delete existing' boolean inputas are optional.
+        When 'Export' is set to 'True', files will be created.
+
     Inputs:
-        geometry: Data tree of geometry. Each branch corresponds to a layer.
+        geometry: Data tree of geometries. Every branch corresponds to a layer.
         exportFileName: Export file name.
         exportFilePath: Target directory.
-        layerNames: List of layer names to bake geometry into. 
-        layerColors: List of colors (Optional). Can be one color or as many colors as layer names. 
+        layerNames: List of layer names to bake geometry into.
+        layerColors: List of colors (Optional). Can be one color or as many colors as layer names.
         Export: boolean to run component
-        deleteExisting: boolean to delete geometry already in document."""
+        deleteExisting: boolean to delete geometry already in document.
 
-__author__ = "jberry"
-__version__ = "2019.05.24"
+    Outputs:
+        None"""
+
+__author__ = "palomagr"
+__version__ = "2020.07.09"
+
+#ghenv.Component.Name = "Bake with Attributes"
+#ghenv.Component.NickName = "Bake with Attributes"
 
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython
@@ -24,13 +35,15 @@ import rhinoscriptsyntax as rs
 import ghpythonlib.treehelpers as th
 import ghpythonlib.components as ghcomp
 import scriptcontext as sc
+
 rcdoc = Rhino.RhinoDoc.ActiveDoc
 ghdoc = sc.doc
 
+
 class MyComponent(component):
-    
+
     def RunScript(self, geometry, exportFileName, exportFilePath, layerNames, layerColors, Export, deleteExisting):
-                
+
         def bake(geometry, layerNames, layerColors):
             geometryList = [geometry.Branch(b) for b in range(geometry.BranchCount)]
         #    print geometryList
@@ -40,60 +53,60 @@ class MyComponent(component):
             elif len(layerColors)!=len(layerNames) or layerColors==[]:
                 print "The number of layer colors must match the number of layers."
             else:
-                attr =Rhino.DocObjects.ObjectAttributes()
+                attr= Rhino.DocObjects.ObjectAttributes()
                 sc.doc = rcdoc
-                
+
                 for i in range(len(geometryList)):
-                    currentLayer=layerNames[i]
-                    if layerColors==None:
-                        currentColor=None
+                    currentLayer= layerNames[i]
+                    if layerColors== None:
+                        currentColor= None
                     else:
                         currentColor=layerColors[i]
-                                
+
                     #if layer does not exist, make the layer and assign layer color
                     if not rs.IsLayer(currentLayer):
                         print "layer doesn't exist"
-                        if layerColors!=None:
-                            rs.AddLayer(name=currentLayer, color=currentColor)
+                        if layerColors!= None:
+                            rs.AddLayer(name= currentLayer, color= currentColor)
                     #if layer exists, check and assign layer color
                     if currentColor!=None and rs.LayerColor(currentLayer)!=currentColor:
                         rs.LayerColor(currentLayer, currentColor)
-                    
+
                     #get index of current layer
                     layerIndex = rs.LayerOrder(currentLayer)
-                    
+
                     #get objects on this branch
-                    
+
                     for id in geometryList[i]:
-                        sc.doc=ghdoc
+                        sc.doc = ghdoc
                         gh_to_rhino = rs.coercerhinoobject(id)
-                        
+
                         #set object layer
                         objAttr = gh_to_rhino.Attributes
                         objAttr.LayerIndex = layerIndex
                         #separate geometry
                         objGeom = gh_to_rhino.Geometry
-                        
+
                         #bake!
                         sc.doc=rcdoc
                         rcdoc.Objects.Add(objGeom, objAttr)
             return
-                    
-        
+
+
         """
         Export geometry in file to file name
         """
         def export():
             #select objects to export
-            sc.doc=rcdoc
+            sc.doc= rcdoc
             rs.AllObjects(select=True)
             filepath = os.path.join(exportFilePath, exportFileName)
             exportCommandString = '_-Export "' + filepath + '" _Enter _Enter _Enter'
             out = rs.Command(exportCommandString, echo=True)
             sc.doc=ghdoc
             return
-                
-                
+
+
         """
         deletes all existing geometry from document.
         """
@@ -103,7 +116,7 @@ class MyComponent(component):
             rs.DeleteObjects(allObjs)
             sc.doc = ghdoc
             return
-                
+
         """
         Meat of the component
         """
@@ -125,4 +138,4 @@ class MyComponent(component):
             elif layerColors==[]:
                 print "Please add layer colors."
 
-        return 
+        return

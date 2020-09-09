@@ -1,19 +1,25 @@
 """Imports geometry from GeoJSON files into grasshopper.
-   Preserves layer hierarchy as data tree.
+
+Preserves layer hierarchy as data tree.
+The Import GeoJSON component extracts the GIS attributes from the geoJSON files.
+Based on the work of Jackie Berry.
+   
+    Typical usage:
+        Input a path as a string.
+
     Inputs:
         Import: boolean to start import
         geoJSONFolderPath: path to folder with GeoJSON files
         siteNumber: int site number
+
     Output:
         Geometry: The imported geometry ingo gh space
         Attributes: attributes of objects / layers
         Values: evaluated values
-        LayerNames: list of layer names
-        """
+        LayerNames: list of layer names"""
 
-__author__ = "jberry"
-__version__ = "2019.03.11"
-"Packaged by Paloma GR 2020.09.07"
+__author__ = "palomagr"
+__version__ = "2020.07.09"
 
 #ghenv.Component.Name = "Import GeoJason"
 #ghenv.Component.NickName = "Import GeoJSON"
@@ -37,7 +43,7 @@ from Grasshopper import DataTree
 from Grasshopper.Kernel.Data import GH_Path
 
 class MyComponent(component):
-    
+
     def RunScript(self, Import, geoJSONFolderPath, SiteNumber):
         Geometry, Attributes, Values, LayerNames = None, None, None, None
         def addRhinoLayer(layerName, layerColor=System.Drawing.Color.Black):
@@ -53,8 +59,8 @@ class MyComponent(component):
                 if layer.Color != layerColor: # if it has a different color
                     layer.Color = layerColor # reset the color
             return layerIndex
-        
-        
+
+
         def PointToRhinoPoint(coordinates):
             if len(coordinates) > 2:
                 z = coordinates[2]
@@ -62,15 +68,15 @@ class MyComponent(component):
                 z = 0.0
             x, y = coordinates[0], coordinates[1]
             return Point3d(x, y, z)
-        
-        
+
+
         def MultiPointToRhinoPoint(coordinates):
             rhPointList = []
             for point in coordinates:
                 rhPointList.append(PointToRhinoPoint(point))
             return rhPointList
-        
-        
+
+
         def MeshToRhinoMesh(coordinates, faces):
             rhMesh = Mesh()
             for point in coordinates:
@@ -83,86 +89,86 @@ class MyComponent(component):
             rhMesh.Normals.ComputeNormals()
             rhMesh.Compact()
             return rhMesh
-        
-        
+
+
         def LineStringToRhinoCurve(coordinates):
             rhPoints = MultiPointToRhinoPoint(coordinates)
             return Curve.CreateControlPointCurve(rhPoints, 1)
-        
-        
+
+
         def MultiLineStringToRhinoCurve(coordinates):
             rhCurveList = []
             for lineString in coordinates:
                 rhCurveList.append(LineStringToRhinoCurve(lineString))
             return rhCurveList
-        
-        
+
+
         def PolygonToRhinoCurve(coordinates):
             # each ring is a separate list of coordinates
             ringList = []
             for ring in coordinates:
                 ringList.append(LineStringToRhinoCurve(ring))
             return ringList
-        
-        
+
+
         def MultiPolygonToRhinoCurve(coordinates):
             polygonList = []
             for polygon in coordinates:
                 polygonList.append(PolygonToRhinoCurve(polygon))
             return polygonList
-        
-        
+
+
         def GeometryCollectionToParser(geometries):
             pass # I need to figure this one out still
-        
-        
+
+
         def addPoint(rhPoint, objAtt):
             return doc.Objects.AddPoint(rhPoint, objAtt)
-        
-        
+
+
         def addPoints(rhPoints, objAtt):
             guidList = []
             for rhPoint in rhPoints:
                 guidList.append(doc.Objects.AddPoint(rhPoint, objAtt))
             return guidList
-        
-        
+
+
         def addCurve(rhCurve, objAtt):
             return doc.Objects.AddCurve(rhCurve, objAtt)
-        
-        
+
+
         def addCurves(rhCurves, objAtt):
             guidList = []
             for curve in rhCurves:
                 guidList.append(addCurve(curve, objAtt))
             return guidList
-        
-        
+
+
         def addPolygon(ringList, objAtt):
             # for now this just makes curves
             # but maybe it should make TrimmedSrfs
             # or should group the rings
             return addCurves(ringList, objAtt)
-        
-        
+
+
         def addPolygons(polygonList, objAtt):
             guidList = []
             for polygon in polygonList:
                 # !! Extending the guid list !!!
                 guidList.extend(addPolygon(polygon, objAtt))
             return guidList
-        
-        
+
+
         def addMesh(rhMesh, objAtt):
             return doc.Objects.AddMesh(rhMesh, objAtt)
-        
-        
+
+
         def setUserKeys(properties, objAttributes):
             for key in properties:
                 objAttributes.SetUserString(key, str(properties[key]))
             return objAttributes
-        
-        
+
+
         def jsonToRhinoCommon(jsonFeature):
                 # deal with the geometry
                 geom = jsonFeature['geometry']
@@ -176,8 +182,8 @@ class MyComponent(component):
                 else:
                     rhFeature = geoJsonGeometryMap[geomType][0](coordinates)
                 return rhFeature
-        
-        
+
+
         def addJsonFeature(jsonFeature, objAttributes):
                 # deal with the properties
                 if jsonFeature['properties']:
@@ -186,8 +192,8 @@ class MyComponent(component):
                 rhFeature = jsonToRhinoCommon(jsonFeature)
                 # return the GUID(s) for the feature
                 return geoJsonGeometryMap[geomType][1](rhFeature, objAttributes)
-        
-        
+
+
         def processGeoJson(parsedGeoJson,
                  destinationLayer=None,
                  destinationLayerColor=System.Drawing.Color.Black):
@@ -205,8 +211,8 @@ class MyComponent(component):
                 guidResults.append(addJsonFeature(jsonFeature, att))
             # return all the guids
             return guidResults
-        
-        
+
+
         def load(rawJsonData,
                  prefix=None,
                  destinationLayer=None,
@@ -227,7 +233,7 @@ class MyComponent(component):
                 allResults = []
                 layersList = jsonData['layers']
                 for layer in layersList: # for each layer
-                    name = prefix + layer['name'] # get the name, modified to add filename to 
+                    name = prefix + layer['name'] # get the name, modified to add filename to
                     if 'color' in layer: # get the color if it exists
                         color = layer['color']
                     else:
@@ -239,8 +245,8 @@ class MyComponent(component):
                 return allResults, layersList
             else:
                 return "This doesn't look like correctly formatted GeoJSON data.\nI'm not sure what to do with it, sorry."
-        
-        
+
+
         def getAttsVals(id,path=None):
             objct = doc.Objects.Find(id)
             data = objct.Attributes.GetUserStrings()
@@ -265,12 +271,12 @@ class MyComponent(component):
                     Attributes.Add(u,path)
                     Values.Add(d[u],path)
                 return None,None
-            
-            
+
+
         def importSitefolder(filepath):
             f = str(SiteNumber)
             prefix = str(f +"_")
-            
+
             try:
                 thisfilepath = os.path.join(filepath, f)
                 f = open(thisfilepath,'r')
@@ -283,9 +289,9 @@ class MyComponent(component):
             idsOut.append(guidList)
             layerNamesOut.append(layersList)
             f.close()
-        
-        
-        
+
+
+
         def constructTree():
             ### NOTE: some problems with mutlipolygons being nested 'up' a level. This problem is rooted in 'loader'
             ### it needs to be debugged out
@@ -329,9 +335,9 @@ class MyComponent(component):
                         print 'There were some problems importing a layer, please try again with a different set of layers'
                         continue
             return
-        
-        
-        
+
+
+
         geoJsonGeometryMap = {
                 'Point':(PointToRhinoPoint, addPoint),
                 'MultiPoint':(MultiPointToRhinoPoint, addPoints),
@@ -342,8 +348,8 @@ class MyComponent(component):
                 'Mesh':(MeshToRhinoMesh, addMesh),
                 'GeometryCollection':(GeometryCollectionToParser),
                 }
-        
-        
+
+
         """
         To run the code
         """
@@ -353,22 +359,22 @@ class MyComponent(component):
                     idsOut = []
                     layerNamesOut = []
                     importSitefolder(geoJSONFolderPath)
-                    
+
                     if idsOut != None:
                         Geometry = DataTree[Object]()
                         Attributes = DataTree[Object]()
                         Values = DataTree[Object]()
                         LayerNames = DataTree[Object]()
                         constructTree()
-                        print 'You succesfully imported a geoJSON file!' 
+                        print 'You succesfully imported a geoJSON file!'
                     else:
                         print 'There was some problem with your geoJSON file, we imported as many layers as possible!'
-                        
+
                 except:
                     pass
         else:
             print 'To Import you need to input a boolean toggle'
-        
-        
+
+
         # return outputs if you have them; here I try it for you:
         return (Geometry, Attributes, Values, LayerNames)

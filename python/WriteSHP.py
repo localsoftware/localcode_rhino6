@@ -1,17 +1,29 @@
-"""
-write shapefile.py
-Provides read and write support for ESRI Shapefiles.
+"""Write shapefile.py
+
+Writes GH Geometries into ESRI Shapefiles.
 based on the work of jlawhead<at>geospatialpython.com
+
+	Typical usage:
+		Input geoemtry, projection and a boolean.
+
 	Inputs:
 		geometry: List of geometry objects to save in shapefile.
 		fields: List of attribute names for all geometry objects.
 		values: Tree with attribute values for all geometry objects.
 		path: Path to destination file.
 		filename: destination file name.
-		activate: Boolean to write shapefile.
+		Activate: Boolean to write shapefile.
 		projection: map projection to create PRJ file (required for readShapefile)
+
 	Outputs:
-"""
+		None"""
+
+__author__ = "palomagr"
+__version__ = "2020.07.09"
+
+#ghenv.Component.Name = "Write ShapeFile"
+#ghenv.Component.NickName = "Write ShapeFile"
+
 
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino
@@ -21,8 +33,8 @@ import os, time, array
 
 
 class MyComponent(component):
-    
-    def RunScript(self, geometry, fields, values, path, filename, activate, projection):
+
+    def RunScript(self, geometry, fields, values, path, filename, Activate, projection):
         import sys
         # Constants for shape types
         NULL = 0
@@ -39,9 +51,9 @@ class MyComponent(component):
         POLYGONM = 25
         MULTIPOINTM = 28
         MULTIPATCH = 31
-        
+
         PYTHON3 = sys.version_info[0] == 3
-        
+
         def b(v):
             if PYTHON3:
                 if isinstance(v, str):
@@ -56,7 +68,7 @@ class MyComponent(component):
             else:
                 # For python 2 assume str passed in and return str.
                 return v
-        
+
         def u(v):
             if PYTHON3:
                 if isinstance(v, bytes):
@@ -71,19 +83,19 @@ class MyComponent(component):
             else:
                 # For python 2 assume str passed in and return str.
                 return v
-        
+
         def is_string(v):
             if PYTHON3:
                 return isinstance(v, str)
             else:
                 return isinstance(v, basestring)
-        
+
         class _Array(array.array):
             """Converts python tuples to lits of the appropritate type.
             Used to unpack different shapefile header parts."""
             def __repr__(self):
                 return str(self.tolist())
-        
+
         class _Shape:
             def __init__(self, shapeType=None):
                 """Stores the geometry of the different shape types
@@ -97,17 +109,17 @@ class MyComponent(component):
                 list of shapes."""
                 self.shapeType = shapeType
                 self.points = []
-        
+
         class _ShapeRecord:
             """A shape object of any type."""
             def __init__(self, shape=None, record=None):
                 self.shape = shape
                 self.record = record
-        
+
         class ShapefileException(Exception):
             """An exception to handle shapefile specific problems."""
             pass
-        
+
         class Writer:
             """Provides write support for ESRI Shapefiles."""
             def __init__(self, shapeType=None):
@@ -123,7 +135,7 @@ class MyComponent(component):
                 self._lengths = []
                 # Use deletion flags in dbf? Default is false (0).
                 self.deletionFlag = 0
-        
+
             def __getFileObj(self, f):
                 """Safety handler to verify file-like objects"""
                 if not f:
@@ -135,7 +147,7 @@ class MyComponent(component):
                     if pth and not os.path.exists(pth):
                         os.makedirs(pth)
                     return open(f, "wb")
-        
+
             def __shpFileLength(self):
                 """Calculates the file length of the shp file."""
                 # Start with header length
@@ -194,7 +206,7 @@ class MyComponent(component):
                 # Calculate size as 16-bit words
                 size //= 2
                 return size
-        
+
             def __bbox(self, shapes, shapeTypes=[]):
                 x = []
                 y = []
@@ -206,7 +218,7 @@ class MyComponent(component):
                     x.extend(px)
                     y.extend(py)
                 return [min(x), min(y), max(x), max(y)]
-        
+
             def __zbox(self, shapes, shapeTypes=[]):
                 z = []
                 for s in shapes:
@@ -217,7 +229,7 @@ class MyComponent(component):
                         pass
                 if not z: z.append(0)
                 return [min(z), max(z)]
-        
+
             def __mbox(self, shapes, shapeTypes=[]):
                 m = [0]
                 for s in shapes:
@@ -227,21 +239,21 @@ class MyComponent(component):
                     except IndexError:
                         pass
                 return [min(m), max(m)]
-        
+
             def bbox(self):
                 """Returns the current bounding box for the shapefile which is
                 the lower-left and upper-right corners. It does not contain the
                 elevation or measure extremes."""
                 return self.__bbox(self._shapes)
-        
+
             def zbox(self):
                 """Returns the current z extremes for the shapefile."""
                 return self.__zbox(self._shapes)
-        
+
             def mbox(self):
                 """Returns the current m extremes for the shapefile."""
                 return self.__mbox(self._shapes)
-        
+
             def __shapefileHeader(self, fileObj, headerType='shp'):
                 """Writes the specified header type to the specified file-like object.
                 Several of the shapefile formats are so similar that a single generic
@@ -273,7 +285,7 @@ class MyComponent(component):
                     f.write(pack("<4d", z[0], z[1], m[0], m[1]))
                 except error:
                     raise ShapefileException("Failed to write shapefile elevation and measure values. Floats required.")
-        
+
             def __dbfHeader(self):
                 """Writes the dbf header and field descriptors."""
                 f = self.__getFileObj(self.dbf)
@@ -304,7 +316,7 @@ class MyComponent(component):
                     f.write(fld)
                 # Terminator
                 f.write(b('\r'))
-        
+
             def __shpRecords(self):
                 """Write the shp records"""
                 f = self.__getFileObj(self.shp)
@@ -392,7 +404,7 @@ class MyComponent(component):
                     f.seek(start-4)
                     f.write(pack(">i", length))
                     f.seek(finish)
-        
+
             def __shxRecords(self):
                 """Writes the shx records."""
                 f = self.__getFileObj(self.shx)
@@ -400,7 +412,7 @@ class MyComponent(component):
                 for i in range(len(self._shapes)):
                     f.write(pack(">i", self._offsets[i] // 2))
                     f.write(pack(">i", self._lengths[i]))
-        
+
             def __dbfRecords(self):
                 """Writes the dbf records."""
                 f = self.__getFileObj(self.dbf)
@@ -419,23 +431,23 @@ class MyComponent(component):
                         assert len(value) == size
                         value = b(value)
                         f.write(value)
-        
+
             def null(self):
                 """Creates a null shape."""
                 self._shapes.append(_Shape(NULL))
-        
+
             def point(self, x, y, z=0, m=0):
                 """Creates a point shape."""
                 pointShape = _Shape(self.shapeType)
                 pointShape.points.append([x, y, z, m])
                 self._shapes.append(pointShape)
-        
+
             def line(self, parts=[], shapeType=POLYLINE):
                 """Creates a line shape. This method is just a convienience method
                 which wraps 'poly()'.
                 """
                 self.poly(parts, shapeType, [])
-        
+
             def poly(self, parts=[], shapeType=POLYGON, partTypes=[]):
                 """Creates a shape that has multiple collections of points (parts)
                 including lines, polygons, and even multipoint shapes. If no shape type
@@ -461,11 +473,11 @@ class MyComponent(component):
                             partTypes.append(polyShape.shapeType)
                     polyShape.partTypes = partTypes
                 self._shapes.append(polyShape)
-        
+
             def field(self, name, fieldType="C", size="50", decimal=0):
                 """Adds a dbf field descriptor to the shapefile."""
                 self.fields.append((name, fieldType, size, decimal))
-        
+
             def record(self, *recordList, **recordDict):
                 """Creates a dbf attribute record. You can submit either a sequence of
                 field values or keyword arguments of field names and values. Before
@@ -490,14 +502,14 @@ class MyComponent(component):
                                 record.append("")
                 if record:
                     self.records.append(record)
-        
+
             def shape(self, i):
                 return self._shapes[i]
-        
+
             def shapes(self):
                 """Return the current list of shapes."""
                 return self._shapes
-        
+
             def saveShp(self, target):
                 """Save an shp file."""
                 if not hasattr(target, "write"):
@@ -507,7 +519,7 @@ class MyComponent(component):
                 self.shp = self.__getFileObj(target)
                 self.__shapefileHeader(self.shp, headerType='shp')
                 self.__shpRecords()
-        
+
             def saveShx(self, target):
                 """Save an shx file."""
                 if not hasattr(target, "write"):
@@ -517,7 +529,7 @@ class MyComponent(component):
                 self.shx = self.__getFileObj(target)
                 self.__shapefileHeader(self.shx, headerType='shx')
                 self.__shxRecords()
-        
+
             def saveDbf(self, target):
                 """Save a dbf file."""
                 if not hasattr(target, "write"):
@@ -525,7 +537,7 @@ class MyComponent(component):
                 self.dbf = self.__getFileObj(target)
                 self.__dbfHeader()
                 self.__dbfRecords()
-        
+
             def save(self, target=None, shp=None, shx=None, dbf=None):
                 """Save the shapefile data to three files or
                 three file-like objects. SHP and DBF files can also
@@ -544,11 +556,11 @@ class MyComponent(component):
                     self.shx.close()
                     self.saveDbf(target)
                     self.dbf.close()
-        
+
         def Main():
             if path!=None and filename!=None:
                 file = os.path.join(path, filename)
-                if activate == True:
+                if Activate == True:
                     if type(geometry[0]) == Rhino.Geometry.Point: # If it is a point collection
                         w = Writer(POINT)
                         for field in fields: # Write the fields in the dbf
@@ -559,7 +571,7 @@ class MyComponent(component):
                             w.point(point.X, point.Y, point.Z) # Write the pts as shp geometry objects
                             w.record(*vals) # Write the values for each pt
                         w.save(file)
-                    
+
                     else:
                         if geometry[0].IsClosed == False: # If the geometry is a curve, write a line shp
                             w = Writer(POLYLINE)
@@ -573,7 +585,7 @@ class MyComponent(component):
                                     w.poly(parts=points) # Write the polylines as shp geometry objects
                                     w.record(*vals) # Write the values for each pt
                             w.save(file)
-                            
+
                         else: # It is a polygon
                             w = Writer(POLYGON)
                             for field in fields: # Write the fields in the dbf
@@ -588,23 +600,23 @@ class MyComponent(component):
                             w.save(file)
                 if projection:
                     prj(file, projection)
-        
+
         def get_fields(i, fields, values, geometry):
             vals = [] # Create a list to store values for each geom
             for h in range(len(fields)):
                 vals.append(values[values.Path(i),h]) # I iterate through the data tree and build individual lists
             return vals
-        
+
         def prj(file, epsg):
             # create the PRJ file
             prj = open("%s.prj" % file, "w")
             prj.write(epsg)
             prj.close()
-        
+
 #        if __name__ == "__main__":
 #            Main()
-        
+
         Main()
-        
+
         # return outputs if you have them; here I try it for you:
-        return 
+        return

@@ -1,23 +1,34 @@
-"""
-Deserializes data from binary file
+"""Deserializes data from binary file.
 
-Inputs:
-    siteNumber: site number
-    layer: layer name
-    path: path to source file directory.
-    read: boolean
+Un-pickles (de-serializes) pickled files into Grasshopper geometries.
+Un-pickling geometry is faster and more efficient than importing Rhino files.
+Based on the work of Jackie Berry.
 
-Outputs:
-    geometry: converted geometry
-"""
+    Typical usage:
+        You need to provide a path for the folder that contains the files to be imported.
+        Use the string concatenate component to join the file path of the folder with the number of the file to be imported.
+        You can specify the file number with a slider. Specify the name of the layers you want to import from the rhino file.
+        Type the layer names in a Panel. Make sure the Multiline Data option is unchecked (you can uncheck the box while typing in the panel or by right click).
+
+    Inputs:
+        siteNumber: site number
+        layer: layer name
+        path: path to source file directory.
+        read: boolean
+
+    Outputs:
+        geometry: converted geometry"""
+
+__author__ = "palomagr"
+__version__ = "2020.07.09"
+
+#ghenv.Component.Name = "Unpicke Data"
+#ghenv.Component.NickName = "Unpickle Data"
 
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino, os
 import rhinoscriptsyntax as rs
 import cPickle as pickle
-
-__author__ = "jberry"
-__version__ = "2019.05.02"
 
 class MyComponent(component):
     geometry=None
@@ -35,7 +46,7 @@ class MyComponent(component):
                 else:
                     print "the file is empty."
                 f.close()
-        
+
             except:
                 print 'problem loading\n %s\nfile may not exist or the path may be invalid.' % filepath
         else:

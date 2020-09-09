@@ -1,11 +1,29 @@
-"""Imports geometry from shapefile
+"""Imports geometry from shapefile.
+
+Directly imports SHP files and turns them into Grasshopper geometries.
+Their GIS attributes are stored as User Strings in the geometry.
+Based on the work of Jackie Berry.
+
+    Typical usage:
+        Get the location (Flie Path) of the SHPfile you want to import. The file path should include the name of the .shp file.
+        Add two Boolean toggles. Plug them into the 'Read' and 'move To Center' inputs.
+        When Read is set to True, the component will load the SHP file into GH. When moveToCenter is set to true, the SHP file geometries will be moved to the center of the Rhino Workspace, otherwise they'll be imported into their global projection.
+
     Inputs:
         shapefile: path to shapefile
-        read: boolean to run script
+        Read: boolean to run script
         moveToCenter: boolean to center imported geometry at origin
+
     Output:
-        geometry: imported geometry from shapefile
-"""
+        geometry: imported geometry from shapefile"""
+
+__author__ = "palomagr"
+__version__ = "2020.07.09"
+
+#ghenv.Component.Name = "Read Shape File"
+#ghenv.Component.NickName = "Read Shape File"
+
+
 from ghpythonlib.componentbase import executingcomponent as component
 import Grasshopper, GhPython, System, Rhino, os, sys, System.Text
 import struct, datetime, decimal, itertools
@@ -15,39 +33,39 @@ bodyname = System.Text.Encoding.Default.BodyName
 sys.setdefaultencoding(bodyname)
 
 class MyComponent(component):
-    
+
     def RunScript(self, shapefile, read, moveToCenter):
-        
+
         geometry=None
 
         def dbfreader(f):
             """Returns an iterator over records in a Xbase DBF file.
-        
+
             The first row returned contains the field names.
             The second row contains field specs: (type, size, decimal places).
             Subsequent rows contain the data records.
             If a record is marked as deleted, it is skipped.
-        
+
             File should be opened for binary reads.
-        
+
             """
             # See DBF format spec at:
             #     http://www.pgts.com.au/download/public/xbase.htm#DBF_STRUCT
-        
-            numrec, lenheader = struct.unpack('<xxxxLH22x', f.read(32))    
+
+            numrec, lenheader = struct.unpack('<xxxxLH22x', f.read(32))
             numfields = (lenheader - 33) // 32
-        
+
             fields = []
             for fieldno in xrange(numfields):
                 name, typ, size, deci = struct.unpack('<11sc4xBB14x', f.read(32))
-                name = name.replace('\0', '')       # eliminate NULs from string   
+                name = name.replace('\0', '')       # eliminate NULs from string
                 fields.append((name, typ, size, deci))
             yield [field[0] for field in fields]
             yield [tuple(field[1:]) for field in fields]
-        
+
             terminator = f.read(1)
             assert terminator == '\r'
-        
+
             fields.insert(0, ('DeletionFlag', 'C', 1, 0))
             fmt = ''.join(['%ds' % fieldinfo[2] for fieldinfo in fields])
             fmtsiz = struct.calcsize(fmt)
@@ -81,9 +99,9 @@ class MyComponent(component):
                         value = (value in 'YyTt' and 'T') or (value in 'NnFf' and 'F') or '?'
                     result.append(value)
                 yield result
-                
+
         ##########################################################################
-        
+
         class ShpFeature(object):
             """
             This is a base class for each record in a shapefile.
@@ -93,20 +111,20 @@ class MyComponent(component):
             the feature is shape (or multi-shape)
             In this class, I attach the dbf data for each record to it's feature.
             """
-        
+
             def __init__(self, shpFile, recordNumber):
                 self.shpFile = shpFile
                 self.recordNumber = recordNumber
                 self.shapeType = shpFile.shapeType
                 self.dbfData = self.readDbfData()
-        
+
             def readDbfData(self):
                 db = self.shpFile.dbfTable
                 dbfData = {}
                 for i in range(len(db[0])): # for each column
                         dbfData[db[0][i]] = db[self.recordNumber + 2][i]
                 return dbfData
-        
+
             def make3D(self, zVals=None):
                 """
                 This method will take a list of z values and use them to create a new
@@ -132,7 +150,7 @@ class MyComponent(component):
                     y = self.points[i][1]
                     point3d = (x,y,z)
                     self.points3D.append(point3d)
-        
+
             def chopParts(self, partlist, pointlist):
                 if type(partlist) == tuple:
                     indexSpread = list(partlist)
@@ -145,9 +163,9 @@ class MyComponent(component):
                 for i in range(len(indexSpread) - 1):
                     chunks.append(pointlist[indexSpread[i]:indexSpread[i+1]])
                 return chunks
-        
+
         class ShpPoint(ShpFeature):
-        
+
             def __init__(self, ShpFile, recordNumber):
                 ShpFeature.__init__(self, ShpFile, recordNumber)
                 self.parts = [0]
@@ -157,28 +175,28 @@ class MyComponent(component):
                 self.x = self.points[0][0]
                 self.y = self.points[0][1]
                 self.make3D()
-        
+
         class ShpPointM(ShpPoint):
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpPoint.__init__(self, ShpFile, recordNumber)
-        
+
                 self.m = self.shpFile._readZ()
                 self.make3D()
-        
+
         class ShpPointZ(ShpPoint):
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpPoint.__init__(self, ShpFile, recordNumber)
-        
+
                 self.z = self.shpFile._readZ()
                 self.m = self.shpFile._readZ()
                 self.make3D([self.z])
-        
+
         class ShpMultiPoint(ShpFeature):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpFeature.__init__(self, ShpFile, recordNumber)
                 self.parts[0]
                 self.numParts = 1
@@ -186,103 +204,103 @@ class MyComponent(component):
                 self.numPoints = self.shpFile._readNumPoints()
                 self.points = self.shpFile._readPoints(self.numPoints)
                 self.make3D()
-        
+
         class ShpMultiPointM(ShpMultiPoint):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpMultiPoint.__init__(self, ShpFile, recordNumber)
                 self.mBounds = self.shpFile._readZBounds()
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D()
-        
+
         class ShpMultiPointZ(ShpMultiPoint):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpMultiPoint.__init__(self, ShpFile, recordNumber)
                 self.zBounds = self.shpFile._readZBounds()
                 self.zArray = self.shpFile._readZArray(self.numPoints)
                 self.mBounds = self.shpFile._readZBounds()
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D(self.zArray)
-        
+
         class ShpPolyLine(ShpFeature):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpFeature.__init__(self, ShpFile, recordNumber)
-        
+
                 self.boundingBox = self.shpFile._readBoundingBox()
                 self.numParts = self.shpFile._readNumParts()
                 self.numPoints = self.shpFile._readNumPoints()
                 self.parts = self.shpFile._readParts(self.numParts)
                 self.points = self.shpFile._readPoints(self.numPoints)
                 self.make3D()
-        
+
         class ShpPolyLineM(ShpPolyLine):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpPolyLine.__init__(self, ShpFile, recordNumber)
-        
+
                 self.mBounds = self.shpFile._readZBounds()
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D()
-        
+
         class ShpPolyLineZ(ShpPolyLine):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpPolyLine.__init__(self, ShpFile, recordNumber)
-        
+
                 self.zBounds = self.shpFile._readZBounds()
                 self.zArray = self.shpFile._readZArray(self.numPoints)
                 self.mBounds = self.shpFile._readZBounds()
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D(self.zArray)
-        
+
         class ShpPolygon(ShpFeature):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpFeature.__init__(self, ShpFile, recordNumber)
-        
+
                 self.boundingBox = self.shpFile._readBoundingBox()
                 self.numParts = self.shpFile._readNumParts()
                 self.numPoints = self.shpFile._readNumPoints()
                 self.parts = self.shpFile._readParts(self.numParts)
                 self.points = self.shpFile._readPoints(self.numPoints)
                 self.make3D()
-        
+
         class ShpPolygonM(ShpPolygon):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpPolygon.__init__(self, ShpFile, recordNumber)
-        
+
                 self.mBounds = self.shpFile._readZBounds()
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D()
-        
+
         class ShpPolygonZ(ShpPolygon):
-        
+
             def __init__(self,ShpFile, recordNumber):
-        
+
                 ShpPolygon.__init__(self, ShpFile, recordNumber)
-        
+
                 self.zBounds = self.shpFile._readZBounds()
                 self.zArray = self.shpFile._readZArray(self.numPoints)
                 self.mBounds = self.shpFile._readZBounds()
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D(self.zArray)
-        
+
         class ShpMultiPatch(ShpFeature):
-        
+
             def __init__(self, ShpFile, recordNumber):
-        
+
                 ShpFeature.__init__(self, ShpFile, recordNumber)
-        
+
                 self.boundingBox = self.shpFile._readBoundingBox()
                 self.numParts = self.shpFile._readNumParts()
                 self.numPoints = self.shpFile._readNumPoints()
@@ -295,13 +313,13 @@ class MyComponent(component):
                 self.mArray = self.shpFile._readZArray(self.numPoints)
                 self.make3D(self.zArray)
                 #self.points = [self.shpFile._readPoint()]
-        
+
         ##################################################
-        
+
         def readAndUnpack(type, data):
             if data=='': return data
             return unpack(type, data)[0]
-        
+
         shapeTypeDict = {
                          0:'Null Shape',
                          1:'Point',
@@ -318,7 +336,7 @@ class MyComponent(component):
                          28:'MultiPointM',
                          31:'MultiPatch'
                          }
-        
+
         classTypeDict = {
                         'Point':ShpPoint,
                         'PointM':ShpPointM,
@@ -334,15 +352,15 @@ class MyComponent(component):
                         'PolygonZ':ShpPolygonZ,
                         'MultiPatch':ShpMultiPatch
                         }
-        
-        
+
+
         class ShpFile(object):
             """
             This class is instantiated using the file path to a shapefile (must contain the .shp file extension), and as soon as it is instantiated, it reads the entire shapefile.
             Once instantiated, it contains objects for each feature based on shape type (the objects are accessible using the
             .records attribute), and allows access to the shapefile data at multiple levels.
             """
-        
+
             def __init__(self,filePath):
                 self.filePath = filePath
                 self.proj = self._readProjText()
@@ -353,7 +371,7 @@ class MyComponent(component):
                 self.boundingBox = header[1]
                 self.records = self._readRecords()
                 self.f.close()
-        
+
             def _readBoundingBox(self):
                 xMin = readAndUnpack('d', self.f.read(8))
                 yMin = readAndUnpack('d', self.f.read(8))
@@ -361,39 +379,39 @@ class MyComponent(component):
                 yMax = readAndUnpack('d', self.f.read(8))
                 bbox = (xMin, yMin, xMax, yMax)
                 return bbox
-        
+
             def _readProjText(self):
                 projPath = self.filePath[0:-4] + '.prj'
                 f = open(projPath, 'r')
                 s = f.read()
                 return s
-        
-        
+
+
             def _readFileHeader(self):
                 self.f.seek(32)
                 shapeKey = readAndUnpack('i', self.f.read(4))
                 shapeType = shapeTypeDict[shapeKey]
                 boundingBox = self._readBoundingBox()
                 return (shapeType, boundingBox)
-        
+
             def _readPoint(self):
                 x = readAndUnpack('d', self.f.read(8))
                 y = readAndUnpack('d', self.f.read(8))
                 return (x,y)
-        
+
             def _readNumParts(self):
                 return readAndUnpack('i', self.f.read(4))
-        
+
             def _readNumPoints(self):
                 return readAndUnpack('i', self.f.read(4))
-        
+
             def _readParts(self, numParts):
                 partIndices = []
                 for i in range(numParts):
                     partIndex = readAndUnpack('i', self.f.read(4))
                     partIndices.append(partIndex)
                 return partIndices
-        
+
             def _readPoints(self, numPoints):
                 points = []
                 # I removed a short chunk of code here
@@ -406,23 +424,23 @@ class MyComponent(component):
                     point = self._readPoint()
                     points.append(point)
                 return points
-        
+
             def _readZ(self):
                 z = readAndUnpack('d', self.f.read(8))
                 return z
-        
+
             def _readZBounds(self):
                 zMin = self._readZ()
                 zMax = self._readZ()
                 return (zMin,zMax)
-        
+
             def _readZArray(self, numPoints):
                 zArray = []
                 for i in range(numPoints):
                     z = self._readZ()
                     zArray.append(z)
                 return zArray
-        
+
             def setZfield(self, fieldKey=None, zValue=0.0):
                 # this method will erase any existing
                 # z data of the geometry
@@ -441,14 +459,14 @@ class MyComponent(component):
                     for each in range(record.numPoints):
                         zArray.append(zValue)
                     record.make3D(zArray)
-        
+
             def _readDbfTable(self):
                 dbfFile = self.filePath[0:-4] + '.dbf'
                 dbf = open(dbfFile, 'rb')
                 db = list(dbfreader(dbf))
                 dbf.close()
                 return db
-        
+
             def _readRecords(self):
                 records = []
                 self.f.seek(100)
@@ -460,7 +478,7 @@ class MyComponent(component):
                     records.append(record)
                     iterator += 1
                 return records
-        
+
             def _readFeature(self, iterator):
                 # the next 12 bytes are simply passed over, though they contain:
                 # a record number: which doesn't seem to correspond to the dbf
@@ -474,20 +492,20 @@ class MyComponent(component):
                     # get shapeType and creates appropriate feature
                     feature = classTypeDict[self.shapeType](self,iterator)
                     return feature
-        
+
         ##################################################
-        
+
         def addUserStrings(feature, geom):
             data = feature.dbfData
             for k in data:
                 geom.SetUserString(k, str(data[k]))
             return geom
-        
+
         def tVect(geom, vector):
             geom.Translate(vector)
             geom.SetUserString('TranslationVector', str(vector) )
             return geom
-        
+
         def transVectorFromBBox(shpFile):
             """Uses the bounding box of a shapefile to make a vector moving Rhino geometry to the origin. The translation vector
             can also be stored as a user string the Rhino geometry, for later conversion back into geospatial data."""
@@ -495,18 +513,18 @@ class MyComponent(component):
             originalCenterPoint = ((b[0]+b[2])/2, (b[1]+b[3])/2, 0.0)
             translationVectr = Rhino.Geometry.Vector3d((b[0]+b[2])/-2.0, (b[1]+b[3])/-2.0, 0.0)
             return translationVectr
-        
+
         def chop(indices, someList):
             for i in range(len(indices)-1):
                 idx1, idx2 = indices[i], indices[i+1]
                 yield someList[idx1:idx2]
-        
+
         def chopPoints( feature ):
             if feature.numParts > 1:
                 return [p for p in chop(feature.parts, feature.points3D)]
             else:
                 return [feature.points3D]
-        
+
         def shpToPoints( feature, translationVector=None ):
             # You can't set user strings to Point3d so for now lets skip it.
             #points = [addUserStrings(feature, Rhino.Geometry.Point3d(*p)) for p in feature.points3D]
@@ -514,7 +532,7 @@ class MyComponent(component):
             if translationVector:
                 points = [p.Add(p, translationVector) for p in points]
             return points
-        
+
         def shpToCurve( feature, translationVector=None, degree=1):
             parts = chopPoints( feature )
             crvs = []
@@ -528,7 +546,7 @@ class MyComponent(component):
                     crv = tVect(crv, translationVector )
                 crvs.append( addUserStrings(feature, crv) )
             return crvs
-        
+
         def shpToMesh( multiPatchFeature, translationVector=None ):
             m = multiPatchFeature
             parts = chopPoints(m)
@@ -552,9 +570,9 @@ class MyComponent(component):
             if translationVector:
                 mesh = tVect( mesh, translationVector)
             return [ addUserStrings(m, mesh) ]
-        
-        
-        
+
+
+
         translationDict = {
                            'Point':shpToPoints,
                            'Polygon':shpToCurve,
@@ -563,7 +581,7 @@ class MyComponent(component):
                            'PolygonZ':shpToCurve,
                            'MultiPatch':shpToMesh
                            }
-        
+
         def ShpFileToRhino( filepath, zero=True, tVect=None ):
             shpfile = ShpFile( filepath )
             if zero:
@@ -573,9 +591,9 @@ class MyComponent(component):
             for r in records:
                 geoms.extend( translationDict[ shpfile.shapeType ]( r, tVect ) )
             return geoms
-        
+
         ##################################################
-        
+
         if read:
             if shapefile:
                 if not os.path.exists(shapefile):
@@ -586,6 +604,6 @@ class MyComponent(component):
                 geometry = out
             else:
                 print 'no shapefile supplied'
-        
+
         # return outputs if you have them; here I try it for you:
         return geometry
