@@ -1,0 +1,12 @@
+name: LocalCode
+version: 1.0.3
+authors:
+- Nicholas deMonchaux
+- Carlos Sandoval
+- Paloma Gonzalez
+- Jaclyn Berry
+description: >
+  LocalCode is a library for handling GIS data, shapefiles and geoJSON.
+url: http://localco.de
+secret:
+  id: 15e57d3c-02cd-e740-15e8-551614f9a18e
