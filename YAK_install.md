@@ -71,6 +71,7 @@ clr.CompileModules("LocalCode.ghpy",
 # 2. Create the YAK file
 
 * Create a folder with the following files:C:\Users\Bozo\dist
+(follow instructions [here](https://developer.rhino3d.com/guides/yak/creating-a-rhino-plugin-package/)) 
 ```
 ├── Marmoset.gha
 ├── Marmoset.dll
@@ -78,3 +79,10 @@ clr.CompileModules("LocalCode.ghpy",
     ├── README.md
     └── LICENSE.txt
 ```
+* Create the .yak file with:
+```
+"C:\Program Files\Rhino 6\System\Yak.exe" build
+```
+# 3. Push to YAK Server
+
+* 
