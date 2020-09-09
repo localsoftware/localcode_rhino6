@@ -70,7 +70,7 @@ clr.CompileModules("LocalCode.ghpy",
 
 # 2. Create the YAK file
 
-* Create a folder with the following files:C:\Users\Bozo\dist
+* Create a folder with the following files:
 (follow instructions [here](https://developer.rhino3d.com/guides/yak/creating-a-rhino-plugin-package/)) 
 ```
 ├── Marmoset.gha
@@ -79,10 +79,18 @@ clr.CompileModules("LocalCode.ghpy",
     ├── README.md
     └── LICENSE.txt
 ```
+* Create a manifest.yml in the same folder. The tricky part is to get an ID for the plugin that goes in the manifest.yml. I already did it:
 * Create the .yak file with:
 ```
 "C:\Program Files\Rhino 6\System\Yak.exe" build
 ```
 # 3. Push to YAK Server
 
-* 
+* In the command prompt write to login to Rhino website:
+```
+> "C:\Program Files\Rhino 6\System\Yak.exe" login
+```
+* Then push to YAK server:
+```
+> "C:\Program Files\Rhino 6\System\Yak.exe" push marmoset-1.0.0.yak
+```
