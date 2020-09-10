@@ -14,12 +14,26 @@ List of working components:
 * 13- Make Material
 * 14- Bake with Attributes
 * 15- Delete all
-* 16- Import
+* 16- U pickle view
 
 # Tasks Achieved:
 * Tested original components
-* Wrote descriptions
+* Wrote descriptions 
 * Developed bake + material
 * Implemented Warnings Errors Remarks 
 * Implemented YAK installation + documentation
-* Fixed some of Olivia's tests 
+* Fixed some of bugs  
+
+## How to implement Runtime errors: 
+
+Usage example:
+
+```
+from Grasshopper.Kernel import GH_RuntimeMessageLevel as RML
+
+        if geometry == None:
+            self.AddRuntimeMessage(RML.Warning, "Add geometry in branches.")
+```
+The 'RML' can be a 'Warning', an 'Error', or a 'Remark'.
+* The 'Remark' turns the component grey
+* The 'Warning' turns the component orange. I wrote warnings for all the components, to inform the user they need to input data, whereas it is geometry or other data types.
