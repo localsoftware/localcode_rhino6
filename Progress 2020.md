@@ -37,4 +37,4 @@ from Grasshopper.Kernel import GH_RuntimeMessageLevel as RML
 The 'RML' can be a 'Warning', an 'Error', or a 'Remark'.
 * The 'Remark' turns the component grey
 * The 'Warning' turns the component orange. I wrote warnings for all the components, to inform the user they need to input data, whether it is geometry or other data types.
-* The 'Error'turns the component red and it's used to signal wrong inputs.
+* The 'Error' turns the component red and it's used to signal wrong inputs.
