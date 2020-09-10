@@ -1,4 +1,4 @@
-List of working components checked by 06.09.2020:
+List of working components:
 * 1- BatchExport: compiled and locked
 * 2- BatchImport: compiled and locked
 * 3- CompareGISAttributes: compiled and locked
@@ -11,17 +11,15 @@ List of working components checked by 06.09.2020:
 * 10- SetView: compiled and locked
 * 11- UnPickleData: compiled and locked
 * 12- WriteSHP: compiled and locked
+* 13- Make Material
+* 14- Bake with Attributes
+* 15- Delete all
+* 16- Import
 
-Next steps: 
-- Need to check "Bake With Attributes", "UnpickleView", BatchRender", "DeleteAll", "Spatial Join". 
-- To understand the workflow. 
-
-- Re-write "Bake with Attributes" in python
-- Create new component "delete all"
-
-# 07/15/2020
-- Make new component that exports to Ilustrator
-- Check documentation
-- Wrote to MCNeel
-
-
+# Tasks Achieved:
+* Tested original components
+* Wrote descriptions
+* Developed bake + material
+* Implemented Warnings Errors Remarks 
+* Implemented YAK installation + documentation
+* Fixed some of Olivia's tests 
