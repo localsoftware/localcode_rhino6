@@ -1,7 +1,12 @@
 # localcode_rhino6
 
 ## To Install from the windows command line:
-`C:\LocalCode>"C:\Program Files\Rhino 6\System\Yak.exe" install localcode`
+`"C:\Program Files\Rhino 6\System\Yak.exe" install localcode`
+
+or 
+
+`"C:\Program Files\Rhino 7 WIP\System\Yak.exe" install localcode`
+
 
 ## TODO:
 * Test BatchRender
